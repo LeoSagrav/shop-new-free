@@ -14,6 +14,9 @@ interface RegisterForm {
     email: string;
     password: string;
     password_confirmation: string;
+    nombre_empresa: string;
+    celular: string;
+    tipo: string;
 }
 
 export default function Register() {
@@ -22,6 +25,9 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        nombre_empresa: '',
+        celular: '',
+        tipo: '',
     });
 
     const submit: FormEventHandler = (e) => {
@@ -101,7 +107,52 @@ export default function Register() {
                         <InputError message={errors.password_confirmation} />
                     </div>
 
-                    <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
+                    <div className="grid gap-2">
+                        <Label htmlFor="nombre_empresa">Nombre de Empresa</Label>
+                        <Input
+                            id="nombre_empresa"
+                            type="text"
+                            required
+                            tabIndex={5}
+                            value={data.nombre_empresa}
+                            onChange={(e) => setData('nombre_empresa', e.target.value)}
+                            disabled={processing}
+                            placeholder="Nombre de tu empresa"
+                        />
+                        <InputError message={errors.nombre_empresa} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="celular">Celular</Label>
+                        <Input
+                            id="celular"
+                            type="text"
+                            required
+                            tabIndex={6}
+                            value={data.celular}
+                            onChange={(e) => setData('celular', e.target.value)}
+                            disabled={processing}
+                            placeholder="Ej: 77712345"
+                        />
+                        <InputError message={errors.celular} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="tipo">Tipo de Empresa</Label>
+                        <Input
+                            id="tipo"
+                            type="text"
+                            required
+                            tabIndex={7}
+                            value={data.tipo}
+                            onChange={(e) => setData('tipo', e.target.value)}
+                            disabled={processing}
+                            placeholder="Ej: Restaurante, Tienda, etc."
+                        />
+                        <InputError message={errors.tipo} />
+                    </div>
+
+                    <Button type="submit" className="mt-2 w-full" tabIndex={8} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Create account
                     </Button>
@@ -109,7 +160,7 @@ export default function Register() {
 
                 <div className="text-muted-foreground text-center text-sm">
                     Already have an account?{' '}
-                    <TextLink href={route('login')} tabIndex={6}>
+                    <TextLink href={route('login')} tabIndex={9}>
                         Log in
                     </TextLink>
                 </div>

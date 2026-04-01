@@ -36,6 +36,7 @@ export default function Productos({ productos }: Props) {
         nombre: '',
         precio: '',
         stock: '',
+        imagen: null as File | null,
     });
 
     const submit = (e: React.FormEvent) => {
@@ -110,6 +111,16 @@ export default function Productos({ productos }: Props) {
                                         placeholder="Cantidad disponible"
                                     />
                                     {errors.stock && <p className="text-sm text-destructive">{errors.stock}</p>}
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="imagen">Imagen del Producto</Label>
+                                    <Input
+                                        id="imagen"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => setData('imagen', e.target.files ? e.target.files[0] : null)}
+                                    />
+                                    {errors.imagen && <p className="text-sm text-destructive">{errors.imagen}</p>}
                                 </div>
                             </div>
                             <DialogFooter>

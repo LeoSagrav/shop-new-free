@@ -8,11 +8,18 @@ class Pedido extends Model
 {
     //
     protected $fillable = [
+        'empresa_id',
         'cliente',
         'celular',
         'departamento',
-        'pais'
+        'pais',
+        'total'
     ];
+
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
+    }
 
     public function productos()
     {

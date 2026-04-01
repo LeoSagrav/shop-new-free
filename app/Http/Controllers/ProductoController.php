@@ -23,9 +23,17 @@ class ProductoController extends Controller
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $request->user()->empresa->productos()->create($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('imagen')) {
+            $path = $request->file('imagen')->store('productos', 'public');
+            $data['imagen'] = '/storage/' . $path;
+        }
+
+        $request->user()->empresa->productos()->create($data);
 
         return back();
     }
@@ -38,9 +46,17 @@ class ProductoController extends Controller
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $producto->update($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('imagen')) {
+            $path = $request->file('imagen')->store('productos', 'public');
+            $data['imagen'] = '/storage/' . $path;
+        }
+
+        $producto->update($data);
 
         return back();
     }

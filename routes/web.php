@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProductoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -10,10 +11,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::post('/pedidos', [PedidoController::class, 'store'])->name('pedidos.store');
+
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [PedidoController::class, 'index'])->name('dashboard');
 
     Route::get('productos', [ProductoController::class, 'index'])->name('productos.index');
     Route::post('productos', [ProductoController::class, 'store'])->name('productos.store');

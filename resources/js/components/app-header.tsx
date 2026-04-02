@@ -15,13 +15,7 @@ import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: LayoutGrid,
-    },
-];
+// mainNavItems should be redefined inside AppHeader
 
 const rightNavItems: NavItem[] = [
     {
@@ -44,7 +38,17 @@ interface AppHeaderProps {
 
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData>();
-    const { auth } = page.props;
+    const { auth, tenant } = page.props as any;
+    const slug = tenant?.slug || '';
+
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            url: `/${slug}/dashboard`,
+            icon: LayoutGrid,
+        },
+    ];
+
     const getInitials = useInitials();
     return (
         <>
@@ -94,7 +98,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </Sheet>
                     </div>
 
-                    <Link href="/dashboard" prefetch className="flex items-center space-x-2">
+                    <Link href={`/${slug}/dashboard`} prefetch className="flex items-center space-x-2">
                         <AppLogo />
                     </Link>
 

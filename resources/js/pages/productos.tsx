@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { Plus, Package, Trash2, Edit } from 'lucide-react';
 import { useState } from 'react';
 
@@ -23,14 +23,16 @@ interface Props {
     productos: Producto[];
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Productos',
-        href: '/productos',
-    },
-];
-
 export default function Productos({ productos }: Props) {
+    const { tenant } = usePage().props as any;
+    const slug = tenant?.slug || '';
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Productos',
+            href: `/${slug}/productos`,
+        },
+    ];
     const [open, setOpen] = useState(false);
     const { data, setData, post, processing, reset, errors } = useForm({
         nombre: '',
@@ -41,7 +43,7 @@ export default function Productos({ productos }: Props) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('productos.store'), {
+        post(route('productos.store', { empresa: slug }), {
             onSuccess: () => {
                 setOpen(false);
                 reset();

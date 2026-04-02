@@ -46,7 +46,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $user->empresa()->create([
+        $empresa = $user->empresa()->create([
             'nombre_empresa' => $request->nombre_empresa,
             'celular' => $request->celular,
             'tipo' => $request->tipo,
@@ -56,6 +56,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return to_route('dashboard');
+        return to_route('dashboard', ['empresa' => $empresa->slug]);
     }
 }

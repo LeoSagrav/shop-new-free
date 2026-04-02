@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Package, Clock, User, Phone, MapPin, CheckCircle2, ChevronRight, ShoppingBag } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
@@ -31,14 +31,16 @@ interface DashboardProps {
     pedidos: Pedido[];
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-];
-
 export default function Dashboard({ pedidos }: DashboardProps) {
+    const { tenant } = usePage().props as any;
+    const slug = tenant?.slug || '';
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Dashboard',
+            href: `/${slug}/dashboard`,
+        },
+    ];
     const totalSales = pedidos.reduce((acc, p) => acc + Number(p.total), 0);
     const totalOrders = pedidos.length;
 

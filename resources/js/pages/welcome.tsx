@@ -22,13 +22,17 @@ interface Producto {
 
 interface WelcomeProps {
     productos: Producto[];
+    empresa: {
+        nombre_empresa: string;
+        slug: string;
+    };
 }
 
 interface CartItem extends Producto {
     cantidad: number;
 }
 
-export default function Welcome({ productos }: WelcomeProps) {
+export default function Welcome({ productos, empresa }: WelcomeProps) {
     const { auth } = usePage<SharedData>().props;
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -78,7 +82,7 @@ export default function Welcome({ productos }: WelcomeProps) {
     const handleCheckout = (e: React.FormEvent) => {
         e.preventDefault();
         
-        post(route('pedidos.store'), {
+        post(route('pedidos.store', { empresa: empresa.slug }), {
             onSuccess: () => {
                 setCart([]);
                 setIsCheckoutOpen(false);
@@ -98,7 +102,7 @@ export default function Welcome({ productos }: WelcomeProps) {
                         <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
                             <Package className="h-5 w-5" />
                         </div>
-                        <span>ShopFree</span>
+                        <span>{empresa?.nombre_empresa || 'ShopFree'}</span>
                     </div>
                     <nav className="flex items-center gap-4">
                         <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
@@ -187,7 +191,7 @@ export default function Welcome({ productos }: WelcomeProps) {
                         </Sheet>
                         {auth.user ? (
                             <Button asChild variant="ghost">
-                                <Link href={route('dashboard')}>Dashboard</Link>
+                                <Link href={route('dashboard', { empresa: empresa.slug })}>Dashboard</Link>
                             </Button>
                         ) : (
                             <>
@@ -201,7 +205,7 @@ export default function Welcome({ productos }: WelcomeProps) {
 
             <main className="container py-12">
                 <section className="mb-16 text-center">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">Tu Catálogo Online Favorito</h1>
+                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">Catálogo de {empresa?.nombre_empresa}</h1>
                     <p className="text-xl text-muted-foreground max-w-[700px] mx-auto">Descubre productos increíbles de empresas locales.</p>
                 </section>
 
@@ -223,13 +227,13 @@ export default function Welcome({ productos }: WelcomeProps) {
                                         )}
                                         <div className="absolute top-2 left-2">
                                             <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary backdrop-blur-sm border border-primary/20">
-                                                {producto.empresa.nombre_empresa}
+                                                {empresa.nombre_empresa}
                                             </span>
                                         </div>
                                     </div>
                                     <CardHeader className="flex-1">
                                         <CardTitle className="line-clamp-2 text-lg">{producto.nombre}</CardTitle>
-                                        <p className="text-sm text-muted-foreground">Por {producto.empresa.nombre_empresa}</p>
+                                        <p className="text-sm text-muted-foreground">Por {empresa.nombre_empresa}</p>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="text-2xl font-bold">Bs. {producto.precio}</div>

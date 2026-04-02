@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class Producto extends Model
 {
+    use BelongsToTenant;
+
     //
     protected $fillable = [
         'empresa_id',
@@ -15,10 +18,6 @@ class Producto extends Model
         'imagen'
     ];
 
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
 
     public function pedidos()
     {

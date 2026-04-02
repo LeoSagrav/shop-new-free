@@ -1,5 +1,5 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { Package, ShoppingCart, Trash2, CheckCircle2 } from 'lucide-react';
+import { Package, ShoppingCart, Trash2, CheckCircle2, ChevronRight, Phone, MapPin, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet';
 import { type SharedData } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 interface Producto {
     id: number;
@@ -25,6 +27,7 @@ interface WelcomeProps {
     empresa: {
         nombre_empresa: string;
         slug: string;
+        celular?: string;
     };
 }
 
@@ -38,6 +41,14 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    // Header scroll effect
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Persist cart
     useEffect(() => {
@@ -62,6 +73,16 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
 
     const removeFromCart = (id: number) => {
         setCart(prev => prev.filter(item => item.id !== id));
+    };
+
+    const updateQuantity = (id: number, delta: number) => {
+        setCart(prev => prev.map(item => {
+            if (item.id === id) {
+                const newQty = Math.max(1, item.cantidad + delta);
+                return { ...item, cantidad: newQty };
+            }
+            return item;
+        }));
     };
 
     const cartTotal = cart.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
@@ -93,188 +114,327 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
     };
 
     return (
-        <div className="min-h-screen bg-background">
-            <Head title="Catálogo Online" />
+        <div className="min-h-screen bg-[#fafafa] dark:bg-zinc-950 font-sans selection:bg-primary/20">
+            <Head title={`Catálogo - ${empresa?.nombre_empresa}`} />
             
-            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="container flex h-16 items-center justify-between">
-                    <div className="flex items-center gap-2 font-bold text-xl">
-                        <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-                            <Package className="h-5 w-5" />
+            {/* Navigation */}
+            <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+                scrolled 
+                ? 'bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b shadow-sm py-3' 
+                : 'bg-transparent py-5'
+            }`}>
+                <div className="container px-4 md:px-6 flex items-center justify-between mx-auto">
+                    <Link href="#" className="flex items-center gap-2 group transition-transform hover:scale-105 active:scale-95">
+                        <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform">
+                            <Package className="h-6 w-6" />
                         </div>
-                        <span>{empresa?.nombre_empresa || 'ShopFree'}</span>
-                    </div>
-                    <nav className="flex items-center gap-4">
+                        <span className="font-bold text-xl tracking-tight">{empresa?.nombre_empresa || 'ShopFree'}</span>
+                    </Link>
+
+                    <div className="flex items-center gap-3">
                         <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="outline" className="relative gap-2">
-                                    <ShoppingCart className="h-4 w-4" />
-                                    Carrito
+                                <Button variant="secondary" className="relative h-11 px-4 gap-2 rounded-full border shadow-sm hover:shadow-md transition-all">
+                                    <ShoppingCart className="h-5 w-5" />
+                                    <span className="hidden sm:inline font-medium">Mi Carrito</span>
                                     {cart.length > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-in zoom-in">
+                                        <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white dark:border-zinc-900 animate-in zoom-in">
                                             {cart.reduce((a, b) => a + b.cantidad, 0)}
                                         </span>
                                     )}
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent>
-                                <SheetHeader>
-                                    <SheetTitle>Tu Carrito</SheetTitle>
+                            <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
+                                <SheetHeader className="p-6 border-b">
+                                    <SheetTitle className="text-2xl flex items-center gap-2">
+                                        <ShoppingCart className="h-6 w-6 text-primary" /> Tu Carrito
+                                    </SheetTitle>
                                 </SheetHeader>
-                                <div className="mt-8 space-y-4 flex-1 overflow-y-auto max-h-[70vh]">
+                                <div className="flex-1 overflow-y-auto p-6 space-y-6">
                                     {cart.length > 0 ? (
                                         cart.map(item => (
-                                            <div key={item.id} className="flex gap-4 items-center border-b pb-4">
-                                                <div className="h-16 w-16 bg-muted rounded flex items-center justify-center">
-                                                    {item.imagen ? <img src={item.imagen} className="object-cover h-full w-full rounded" /> : <Package className="h-6 w-6 text-muted-foreground" />}
+                                            <div key={item.id} className="flex gap-4 group">
+                                                <div className="h-20 w-20 bg-muted rounded-xl flex-shrink-0 overflow-hidden border">
+                                                    {item.imagen 
+                                                        ? <img src={item.imagen} className="object-cover h-full w-full" /> 
+                                                        : <div className="h-full w-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800"><Package className="h-8 w-8 text-muted-foreground/30" /></div>
+                                                    }
                                                 </div>
-                                                <div className="flex-1">
-                                                    <h4 className="font-medium line-clamp-1">{item.nombre}</h4>
-                                                    <p className="text-sm text-muted-foreground">{item.cantidad} x Bs. {item.precio}</p>
+                                                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                                    <div>
+                                                        <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">{item.nombre}</h4>
+                                                        <p className="text-sm font-bold text-primary mt-0.5">Bs. {item.precio}</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex items-center border rounded-lg bg-zinc-50 dark:bg-zinc-800 px-1 py-0.5 scale-90 -ml-1">
+                                                            <button onClick={() => updateQuantity(item.id, -1)} className="p-1 hover:text-primary transition-colors"><Trash2 className="h-3 w-3" /></button>
+                                                            <span className="w-6 text-center text-xs font-bold">{item.cantidad}</span>
+                                                            <button onClick={() => updateQuantity(item.id, 1)} className="p-1 hover:text-primary transition-colors text-lg line-none leading-none">+</button>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => removeFromCart(item.id)}
+                                                            className="text-xs text-muted-foreground hover:text-destructive transition-colors underline underline-offset-2"
+                                                        >
+                                                            Eliminar
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="text-center py-12 text-muted-foreground">El carrito está vacío</div>
+                                        <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
+                                            <div className="h-20 w-20 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+                                                <ShoppingCart className="h-10 w-10 text-zinc-400" />
+                                            </div>
+                                            <p className="font-medium">El carrito está vacío</p>
+                                            <p className="text-sm">Agrega productos para comenzar</p>
+                                        </div>
                                     )}
                                 </div>
-                                <SheetFooter className="mt-8 pt-4 border-t flex-col gap-4">
-                                    <div className="flex justify-between items-center w-full mb-4">
-                                        <span className="text-lg font-bold">Total</span>
-                                        <span className="text-lg font-bold">Bs. {cartTotal.toFixed(2)}</span>
+                                <div className="p-6 border-t bg-zinc-50 dark:bg-zinc-900/50">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="text-zinc-500 font-medium">Subtotal</span>
+                                        <span className="text-2xl font-bold tracking-tight">Bs. {cartTotal.toFixed(2)}</span>
                                     </div>
                                     <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
                                         <DialogTrigger asChild>
-                                            <Button className="w-full" disabled={cart.length === 0}>Realizar Pedido</Button>
+                                            <Button className="w-full h-12 text-lg rounded-xl shadow-lg shadow-primary/20" disabled={cart.length === 0}>
+                                                Continuar al Pago <ChevronRight className="h-5 w-5 ml-2" />
+                                            </Button>
                                         </DialogTrigger>
-                                        <DialogContent className="sm:max-w-[425px]">
+                                        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden rounded-2xl">
                                             <form onSubmit={handleCheckout}>
-                                                <DialogHeader>
-                                                    <DialogTitle>Finalizar Pedido</DialogTitle>
-                                                    <DialogDescription>Completa tus datos para realizar la compra.</DialogDescription>
-                                                </DialogHeader>
-                                                <div className="grid gap-4 py-4">
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="cliente">Nombre Completo</Label>
-                                                        <Input id="cliente" value={data.cliente} onChange={e => setData('cliente', e.target.value)} required />
-                                                        {errors.cliente && <p className="text-sm text-destructive">{errors.cliente}</p>}
+                                                <div className="bg-primary p-6 text-primary-foreground">
+                                                    <DialogTitle className="text-2xl">Finalizar Pedido</DialogTitle>
+                                                    <DialogDescription className="text-primary-foreground/80 mt-1">Completa tus datos para que podamos procesar tu compra.</DialogDescription>
+                                                </div>
+                                                <div className="p-6 space-y-5">
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="cliente" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Nombre Completo</Label>
+                                                        <Input id="cliente" value={data.cliente} onChange={e => setData('cliente', e.target.value)} required placeholder="Juan Pérez" className="h-11 rounded-lg" />
+                                                        {errors.cliente && <p className="text-xs text-destructive">{errors.cliente}</p>}
                                                     </div>
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="celular">Celular</Label>
-                                                        <Input id="celular" value={data.celular} onChange={e => setData('celular', e.target.value)} required placeholder="Ej: 77712345" />
-                                                        {errors.celular && <p className="text-sm text-destructive">{errors.celular}</p>}
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="celular" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Celular de Contacto</Label>
+                                                        <Input id="celular" value={data.celular} onChange={e => setData('celular', e.target.value)} required placeholder="77712345" className="h-11 rounded-lg" />
+                                                        {errors.celular && <p className="text-xs text-destructive">{errors.celular}</p>}
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
-                                                        <div className="grid gap-2">
-                                                            <Label htmlFor="departamento">Ciudad/Depto</Label>
-                                                            <Input id="departamento" value={data.departamento} onChange={e => setData('departamento', e.target.value)} required />
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="departamento" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Ciudad</Label>
+                                                            <Input id="departamento" value={data.departamento} onChange={e => setData('departamento', e.target.value)} required placeholder="La Paz" className="h-11 rounded-lg" />
                                                         </div>
-                                                        <div className="grid gap-2">
-                                                            <Label htmlFor="pais">País</Label>
-                                                            <Input id="pais" value={data.pais} onChange={e => setData('pais', e.target.value)} required />
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="pais" className="text-xs uppercase tracking-wider font-bold text-zinc-500">País</Label>
+                                                            <Input id="pais" value={data.pais} onChange={e => setData('pais', e.target.value)} required className="h-11 rounded-lg" />
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <DialogFooter>
-                                                    <Button type="submit" disabled={processing} className="w-full">
-                                                        Confirmar Pedido (Bs. {cartTotal.toFixed(2)})
+                                                <DialogFooter className="p-6 pt-0">
+                                                    <Button type="submit" disabled={processing} className="w-full h-12 text-lg rounded-xl">
+                                                        {processing ? 'Procesando...' : `Confirmar Pedido • Bs. ${cartTotal.toFixed(2)}`}
                                                     </Button>
                                                 </DialogFooter>
                                             </form>
                                         </DialogContent>
                                     </Dialog>
-                                </SheetFooter>
+                                </div>
                             </SheetContent>
                         </Sheet>
+                        
+                        <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1 hidden sm:block"></div>
+
                         {auth.user ? (
-                            <Button asChild variant="ghost">
-                                <Link href={route('dashboard', { empresa: empresa.slug })}>Dashboard</Link>
+                            <Button asChild variant="ghost" className="rounded-full h-11 px-6 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                                <Link href={route('dashboard', { empresa: empresa.slug })}>Panel Control</Link>
                             </Button>
                         ) : (
-                            <>
-                                <Button asChild variant="ghost"><Link href={route('login')}>Log in</Link></Button>
-                                <Button asChild><Link href={route('register')}>Register</Link></Button>
-                            </>
+                            <div className="hidden sm:flex items-center gap-1">
+                                <Button asChild variant="ghost" className="rounded-full h-11 px-5 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                                    <Link href={route('login')}>Ingresar</Link>
+                                </Button>
+                                <Button asChild className="rounded-full h-11 px-6 font-medium shadow-none">
+                                    <Link href={route('register')}>Empezar</Link>
+                                </Button>
+                            </div>
                         )}
-                    </nav>
+                    </div>
                 </div>
             </header>
 
-            <main className="container py-12">
-                <section className="mb-16 text-center">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">Catálogo de {empresa?.nombre_empresa}</h1>
-                    <p className="text-xl text-muted-foreground max-w-[700px] mx-auto">Descubre productos increíbles de empresas locales.</p>
+            <main>
+                {/* Hero Section */}
+                <section className="relative pt-12 pb-24 overflow-hidden">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-70"></div>
+                    
+                    <div className="container px-4 md:px-6 mx-auto text-center">
+                        <Badge variant="outline" className="mb-6 px-4 py-1.5 rounded-full bg-white dark:bg-zinc-900 border-primary/20 text-primary font-bold tracking-wide uppercase text-[10px]">
+                            Catálogo Oficial
+                        </Badge>
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+                            {empresa?.nombre_empresa} <br />
+                            <span className="text-zinc-400 font-medium">Catálogo de Productos</span>
+                        </h1>
+                        <p className="text-lg md:text-xl text-muted-foreground max-w-[600px] mx-auto leading-relaxed mb-10">
+                            Explora nuestra selección exclusiva de productos de alta calidad, disponibles para entrega inmediata.
+                        </p>
+                        
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm font-medium text-zinc-500">
+                            <div className="flex items-center gap-1.5 py-2 px-4 rounded-full bg-zinc-100 dark:bg-zinc-900 border transition-all hover:border-primary/30">
+                                <MapPin className="h-4 w-4 text-primary" /> Bolivia
+                            </div>
+                            {empresa?.celular && (
+                                <a href={`https://wa.me/${empresa.celular}`} target="_blank" className="flex items-center gap-1.5 py-2 px-4 rounded-full bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/50 transition-all hover:scale-105 active:scale-95">
+                                    <Phone className="h-4 w-4" /> WhatsApp Directo
+                                </a>
+                            )}
+                            <div className="flex items-center gap-1.5 py-2 px-4 rounded-full bg-zinc-100 dark:bg-zinc-900 border transition-all hover:border-primary/30">
+                                <Globe className="h-4 w-4 text-primary" /> Online 24/7
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
-                <section>
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-bold tracking-tight">Explorar Productos</h2>
-                        <span className="text-muted-foreground">{productos.length} productos disponibles</span>
+                <div className="container px-4 md:px-6 mx-auto">
+                    <Separator className="mb-16 opacity-50" />
+                </div>
+
+                {/* Products Section */}
+                <section className="container px-4 md:px-6 pb-32 mx-auto">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                        <div className="space-y-1">
+                            <h2 className="text-3xl font-bold tracking-tight lg:text-4xl">Nuestros Productos</h2>
+                            <p className="text-muted-foreground">Más de {productos.length} artículos disponibles para ti</p>
+                        </div>
+                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 p-1 rounded-xl border shadow-sm self-start">
+                            <Button variant="secondary" size="sm" className="rounded-lg h-9 font-semibold">Todos</Button>
+                            <Button variant="ghost" size="sm" className="rounded-lg h-9 text-muted-foreground font-medium">Populares</Button>
+                            <Button variant="ghost" size="sm" className="rounded-lg h-9 text-muted-foreground font-medium">Nuevos</Button>
+                        </div>
                     </div>
 
                     {productos.length > 0 ? (
-                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {productos.map((producto) => (
-                                <Card key={producto.id} className="overflow-hidden transition-all hover:shadow-lg flex flex-col group">
-                                    <div className="aspect-square bg-muted flex items-center justify-center relative overflow-hidden">
+                                <Card key={producto.id} className="group overflow-hidden bg-white dark:bg-zinc-900 border-zinc-200/60 dark:border-zinc-800 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 flex flex-col rounded-2xl">
+                                    <div className="aspect-[4/5] bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center relative overflow-hidden">
                                         {producto.imagen ? (
-                                            <img src={producto.imagen} alt={producto.nombre} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" />
+                                            <img 
+                                                src={producto.imagen} 
+                                                alt={producto.nombre} 
+                                                className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" 
+                                            />
                                         ) : (
-                                            <Package className="h-16 w-16 text-muted-foreground/30" />
+                                            <Package className="h-20 w-20 text-zinc-200 dark:text-zinc-700" />
                                         )}
-                                        <div className="absolute top-2 left-2">
-                                            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary backdrop-blur-sm border border-primary/20">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="absolute top-3 left-3">
+                                            <Badge className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm text-zinc-900 dark:text-white border-none shadow-sm hover:bg-white">
                                                 {empresa.nombre_empresa}
-                                            </span>
+                                            </Badge>
+                                        </div>
+                                        <div className="absolute bottom-3 left-3 right-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                            <Button onClick={() => addToCart(producto)} className="w-full h-11 rounded-xl shadow-lg shadow-black/20 gap-2 font-bold bg-white text-zinc-900 hover:bg-zinc-100 border-none transition-all active:scale-95">
+                                                <ShoppingCart className="h-5 w-5" /> Agregar al Carrito
+                                            </Button>
                                         </div>
                                     </div>
-                                    <CardHeader className="flex-1">
-                                        <CardTitle className="line-clamp-2 text-lg">{producto.nombre}</CardTitle>
-                                        <p className="text-sm text-muted-foreground">Por {empresa.nombre_empresa}</p>
+                                    <CardHeader className="pt-6 pb-2 px-5 flex-1 items-start space-y-1.5">
+                                        <div className="text-[10px] uppercase tracking-widest font-black text-primary/50">Categoría General</div>
+                                        <CardTitle className="line-clamp-2 text-xl font-bold leading-tight group-hover:text-primary transition-colors">{producto.nombre}</CardTitle>
                                     </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold">Bs. {producto.precio}</div>
+                                    <CardContent className="px-5 py-2">
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-2xl font-black tracking-tighter">Bs. {producto.precio}</span>
+                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Bolivianos</span>
+                                        </div>
                                     </CardContent>
-                                    <CardFooter>
-                                        <Button className="w-full gap-2" onClick={() => addToCart(producto)}>
-                                            <ShoppingCart className="h-4 w-4" /> Agregar al Carrito
+                                    <CardFooter className="px-5 pb-6 pt-2">
+                                        <Button variant="outline" className="w-full rounded-xl h-11 border-zinc-200 dark:border-zinc-800 font-bold sm:hidden" onClick={() => addToCart(producto)}>
+                                            <ShoppingCart className="h-4 w-4 mr-2" /> Comprar
                                         </Button>
                                     </CardFooter>
                                 </Card>
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-24 border-2 border-dashed rounded-xl">
-                            <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                            <h3 className="text-lg font-medium">Aún no hay productos</h3>
+                        <div className="text-center py-32 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] bg-zinc-50/50 dark:bg-zinc-900/20">
+                            <div className="h-20 w-20 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-6">
+                                <Package className="h-10 w-10 text-zinc-300 dark:text-zinc-700" />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-2">Catálogo en mantenimiento</h3>
+                            <p className="text-muted-foreground max-w-sm mx-auto">Pronto tendremos nuevos productos disponibles para ti. ¡Vuelve pronto!</p>
                         </div>
                     )}
                 </section>
             </main>
 
             <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
-                <DialogContent className="sm:max-w-md text-center py-12">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 mb-6">
-                        <CheckCircle2 className="h-10 w-10 text-green-600" />
+                <DialogContent className="sm:max-w-md text-center py-16 rounded-[2rem] border-none shadow-2xl">
+                    <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-50 dark:bg-green-900/20 mb-8 border border-green-100 dark:border-green-900/50">
+                        <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400 animate-in zoom-in spin-in-90 duration-500" />
                     </div>
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl">¡Pedido Realizado!</DialogTitle>
-                        <DialogDescription className="text-base pt-2">
-                            Tu pedido ha sido registrado con éxito. La empresa se pondrá en contacto contigo pronto.
+                    <DialogHeader className="space-y-3">
+                        <DialogTitle className="text-3xl font-black tracking-tight">¡Pedido Realizado!</DialogTitle>
+                        <DialogDescription className="text-lg text-muted-foreground leading-relaxed px-4">
+                            Tu pedido ha sido registrado con éxito. <br />
+                            <strong>{empresa.nombre_empresa}</strong> se pondrá en contacto contigo a la brevedad.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="mt-8">
-                        <Button variant="outline" className="w-full" onClick={() => setIsSuccessOpen(false)}>Cerrar</Button>
+                    <div className="mt-10 px-6">
+                        <Button className="w-full h-12 text-lg rounded-xl shadow-lg shadow-primary/20" onClick={() => setIsSuccessOpen(false)}>
+                            Seguir Explorando
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>
 
-            <footer className="border-t py-12 bg-muted/30 mt-auto">
-                <div className="container text-center text-sm text-muted-foreground">
-                    <p>© 2026 ShopFree. Todos los derechos reservados.</p>
+            <footer className="border-t py-20 bg-zinc-50 dark:bg-zinc-900/30">
+                <div className="container px-4 md:px-6 mx-auto">
+                    <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 items-start mb-20 text-center sm:text-left">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-center sm:justify-start gap-2 font-bold text-xl">
+                                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
+                                    <Package className="h-5 w-5" />
+                                </div>
+                                <span>{empresa?.nombre_empresa}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                Tu destino premium para productos de alta calidad con entrega segura en todo el país.
+                            </p>
+                        </div>
+                        <div className="space-y-4">
+                            <h4 className="font-bold uppercase tracking-widest text-xs py-1 transition-all border-b border-primary/20 inline-block">Navegación</h4>
+                            <ul className="space-y-2 text-sm text-muted-foreground font-medium">
+                                <li><a href="#" className="hover:text-primary transition-colors">Inicio</a></li>
+                                <li><a href="#" className="hover:text-primary transition-colors">Productos</a></li>
+                                <li><a href="#" className="hover:text-primary transition-colors">Categorías</a></li>
+                            </ul>
+                        </div>
+                        <div className="space-y-4">
+                            <h4 className="font-bold uppercase tracking-widest text-xs py-1 transition-all border-b border-primary/20 inline-block">Soporte</h4>
+                            <ul className="space-y-2 text-sm text-muted-foreground font-medium">
+                                <li><a href="#" className="hover:text-primary transition-colors">Envíos</a></li>
+                                <li><a href="#" className="hover:text-primary transition-colors">Devoluciones</a></li>
+                                <li><a href="#" className="hover:text-primary transition-colors">Contacto</a></li>
+                            </ul>
+                        </div>
+                        <div className="space-y-4">
+                            <h4 className="font-bold uppercase tracking-widest text-xs py-1 transition-all border-b border-primary/20 inline-block">Ubicación</h4>
+                            <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground font-medium">
+                                <MapPin className="h-4 w-4 text-primary" />
+                                <span>Bolivia (Todo el país)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <Separator className="mb-10 opacity-30" />
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-muted-foreground font-medium">
+                        <p>© 2026 ShopFree para {empresa.nombre_empresa}. Todos los derechos reservados.</p>
+                        <div className="flex items-center gap-6">
+                            <a href="#" className="hover:text-primary transition-colors">Privacidad</a>
+                            <a href="#" className="hover:text-primary transition-colors">Términos</a>
+                        </div>
+                    </div>
                 </div>
             </footer>
         </div>

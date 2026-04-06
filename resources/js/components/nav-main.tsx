@@ -113,8 +113,8 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
 
                         <div className="flex flex-col sm:flex-row gap-3">
                             <Button className="flex-1 h-12 rounded-xl text-md shadow-lg shadow-primary/20" asChild>
-                                <a href="https://wa.me/message/YOUR_WHATSAPP_LINK" target="_blank" rel="noopener noreferrer">
-                                    Contactar Soporte para Adquirir <ChevronRight className="h-5 w-5 ml-1 inline-block" />
+                                <a href="https://miracode.tech/1bs/" target="_blank" rel="noopener noreferrer">
+                                    Visitar pagina <ChevronRight className="h-5 w-5 ml-1 inline-block" />
                                 </a>
                             </Button>
                             <Button variant="outline" className="flex-1 h-12 rounded-xl text-md" onClick={() => setIsUpgradeModalOpen(false)}>

@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { type SharedData } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import AppearanceToggleDropdown from '@/components/appearance-dropdown';
 
 interface Producto {
     id: number;
@@ -136,24 +137,25 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
     };
 
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-zinc-950 font-sans selection:bg-primary/20">
+        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans selection:bg-steel-blue-500/30 text-zinc-900 dark:text-zinc-50">
             <Head title={`Catálogo - ${empresa?.nombre_empresa}`} />
             
             {/* Navigation */}
-            <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+            <header className={`sticky top-0 z-50 w-full transition-all duration-500 border-b ${
                 scrolled 
-                ? 'bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b shadow-sm py-3' 
-                : 'bg-transparent py-5'
+                ? 'bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl border-steel-blue-100/50 dark:border-steel-blue-900/50 shadow-sm py-4' 
+                : 'bg-white/30 dark:bg-zinc-950/30 backdrop-blur-md border-transparent py-6'
             }`}>
-                <div className="container px-3 md:px-6 flex items-center justify-between mx-auto">
-                    <Link href="#" className="flex items-center gap-2 group transition-transform hover:scale-105 active:scale-95">
-                        <div className="h-9 w-9 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform">
+                <div className="container px-4 md:px-6 flex items-center justify-between mx-auto">
+                    <Link href="#" className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95">
+                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-steel-blue-500 to-steel-blue-700 flex items-center justify-center text-white shadow-lg shadow-steel-blue-500/30 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                             <Package className="h-5 w-5 md:h-6 md:w-6" />
                         </div>
-                        <span className="font-bold text-base md:text-xl tracking-tight truncate">{empresa?.nombre_empresa || 'ShopFree'}</span>
+                        <span className="font-extrabold text-lg md:text-2xl tracking-tight truncate font-roboto text-zinc-900 dark:text-white">{empresa?.nombre_empresa || 'ShopFree'}</span>
                     </Link>
 
                     <div className="flex items-center gap-2 md:gap-3">
+                        <AppearanceToggleDropdown />
                         <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
                             <SheetTrigger asChild>
                                 <Button variant="secondary" className="relative h-9 md:h-11 px-3 md:px-4 gap-2 rounded-full border shadow-sm hover:shadow-md transition-all">
@@ -315,92 +317,99 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
 
             <main>
                 {/* Hero Section */}
-                <section className="relative pt-3 md:pt-4 pb-3 md:pb-4 overflow-hidden">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-70"></div>
+                <section className="relative pt-12 md:pt-24 pb-16 md:pb-32 overflow-hidden bg-gradient-to-b from-steel-blue-50 to-zinc-50 dark:from-steel-blue-950 dark:to-zinc-950 border-b border-steel-blue-100 dark:border-zinc-800 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]">
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CgkJPHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPgoJCTxwYXRoIGQ9Ik0wIDEybDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNEwwIDIwbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNEwwIDI4bDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNEwwIDM2bDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNCIgc3Ryb2tlPSJyZ2JhKTEwNiwxNTQsMTk4LDAuMSkiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIvPgoJPC9zdmc+')] opacity-50 dark:opacity-20" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-steel-blue-400/20 via-transparent to-transparent opacity-100"></div>
                     
-                    <div className="container px-3 md:px-6 mx-auto text-center">
-                        <Badge variant="outline" className="mb-3 md:mb-6 px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-white dark:bg-zinc-900 border-primary/20 text-primary font-bold tracking-wide uppercase text-[8px] md:text-[10px]">
-                            Catálogo Oficial
+                    <div className="container relative z-10 px-4 md:px-6 mx-auto text-center">
+                        <Badge variant="outline" className="mb-6 px-5 py-2 rounded-full bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md border-steel-blue-300 dark:border-steel-blue-800 text-steel-blue-700 dark:text-steel-blue-300 font-bold tracking-widest uppercase text-[10px] md:text-xs">
+                            ✨ Catálogo Oficial
                         </Badge>
-                        <h1 className="text-2xl sm:text-3xl md:text-6xl font-extrabold tracking-tight mb-3 md:mb-6 leading-[1.1]">
-                            Catálogo de <br className="hidden md:block" />
-                            {empresa?.nombre_empresa}
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-6 leading-[1.1] text-zinc-900 dark:text-white font-roboto drop-shadow-sm">
+                            Descubre lo mejor de <br className="hidden md:block" />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-steel-blue-600 to-steel-blue-400 dark:from-steel-blue-400 dark:to-steel-blue-200">{empresa?.nombre_empresa}</span>
                         </h1>
-                        <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-[600px] mx-auto leading-relaxed mb-6 md:mb-10">
-                            Explora nuestra selección exclusiva de productos de alta calidad.
+                        <p className="text-sm sm:text-base md:text-xl text-zinc-600 dark:text-zinc-400 max-w-[700px] mx-auto leading-relaxed mb-10 font-sans font-medium">
+                            Explora nuestra selección exclusiva de productos de alta calidad, diseñados y pensados para brindarte la mejor experiencia de compra.
                         </p>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <Button className="h-12 md:h-14 px-8 md:px-10 rounded-2xl bg-steel-blue-600 hover:bg-steel-blue-700 text-white font-bold shadow-xl shadow-steel-blue-600/20 transition-all hover:-translate-y-1 text-base md:text-lg w-full sm:w-auto">
+                                Ver Colección <ChevronRight className="ml-2 h-5 w-5" />
+                            </Button>
+                        </div>
                     </div>
                 </section>
 
-                <div className="container px-3 md:px-6 mx-auto">
-                    <Separator className="mb-8 md:mb-16 opacity-50" />
-                </div>
-
                 {/* Products Section */}
-                <section className="container px-3 md:px-6 pb-16 md:pb-32 mx-auto">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-12 gap-3 md:gap-6">
-                        <div className="space-y-0.5 md:space-y-1">
-                            <h2 className="text-2xl md:text-4xl font-bold tracking-tight">Nuestros Productos</h2>
-                            <p className="text-xs md:text-base text-muted-foreground">Más de {productos.length} artículos disponibles</p>
+                <section className="container px-4 md:px-6 pb-24 md:pb-32 mx-auto mt-[-2rem] md:mt-[-3rem] relative z-20">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-12 gap-6 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] border border-steel-blue-100 dark:border-zinc-800 shadow-xl shadow-steel-blue-900/5 dark:shadow-black/20">
+                        <div className="space-y-1 md:space-y-2">
+                            <h2 className="text-3xl md:text-4xl font-black tracking-tight font-roboto text-zinc-900 dark:text-white">Nuestros Productos</h2>
+                            <p className="text-sm md:text-base text-zinc-500 dark:text-zinc-400 font-medium">Colección de <span className="text-steel-blue-600 dark:text-steel-blue-400 font-bold">{productos.length}</span> artículos disponibles</p>
                         </div>
-                        <div className="flex items-center gap-1 md:gap-3 bg-white dark:bg-zinc-900 p-0.5 md:p-1 rounded-lg md:rounded-xl border shadow-sm self-start hidden md:flex">
-                            <Button variant="secondary" size="sm" className="rounded-lg h-9 font-semibold">Todos</Button>
-                            <Button variant="ghost" size="sm" className="rounded-lg h-9 text-muted-foreground font-medium">Populares</Button>
-                            <Button variant="ghost" size="sm" className="rounded-lg h-9 text-muted-foreground font-medium">Nuevos</Button>
+                        <div className="flex items-center gap-2 bg-zinc-100/50 dark:bg-zinc-950 p-1.5 rounded-2xl border border-steel-blue-100/50 dark:border-zinc-800 self-start md:self-center overflow-hidden">
+                            <Button variant="secondary" size="sm" className="rounded-xl h-11 px-6 font-bold bg-white dark:bg-zinc-800 shadow-sm text-steel-blue-700 dark:text-steel-blue-300">Todos</Button>
+                            <Button variant="ghost" size="sm" className="rounded-xl h-11 px-6 font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Populares</Button>
+                            <Button variant="ghost" size="sm" className="rounded-xl h-11 px-6 font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Nuevos</Button>
                         </div>
                     </div>
 
                     {productos.length > 0 ? (
-                        <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {productos.map((producto) => (
-                                <Card key={producto.id} className="group overflow-hidden bg-white dark:bg-zinc-900 border-zinc-200/60 dark:border-zinc-800 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 flex flex-col rounded-xl md:rounded-2xl">
-                                    <div className="aspect-[4/5] bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center relative overflow-hidden">
+                                <Card key={producto.id} className="group overflow-hidden bg-white dark:bg-zinc-900 border-steel-blue-100/60 dark:border-zinc-800 shadow-lg shadow-steel-blue-900/5 hover:shadow-2xl hover:shadow-steel-blue-500/15 hover:-translate-y-2 transition-all duration-500 flex flex-col rounded-[2rem] relative">
+                                    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-steel-blue-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+                                    <div className="aspect-[4/5] bg-gradient-to-b from-zinc-50 to-zinc-100/50 dark:from-zinc-950 dark:to-zinc-900 flex items-center justify-center relative overflow-hidden p-6 md:p-8">
                                         {producto.imagen ? (
                                             <img 
                                                 src={producto.imagen} 
                                                 alt={producto.nombre} 
-                                                className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" 
+                                                className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700 ease-[cubic-bezier(0.33,1,0.68,1)] drop-shadow-2xl" 
                                             />
                                         ) : (
-                                            <Package className="h-20 w-20 text-zinc-200 dark:text-zinc-700" />
+                                            <Package className="h-24 w-24 text-steel-blue-200 dark:text-zinc-800 transform group-hover:scale-110 transition-transform duration-700" />
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="absolute top-2 left-2 md:top-3 md:left-3">
-                                            <Badge className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm text-zinc-900 dark:text-white border-none shadow-sm hover:bg-white text-xs md:text-sm">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-zinc-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        
+                                        <div className="absolute top-4 left-4 z-10">
+                                            <Badge className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md text-steel-blue-700 dark:text-steel-blue-300 border-none shadow-sm text-[10px] md:text-xs py-1.5 px-3 font-bold uppercase tracking-widest">
                                                 {empresa.nombre_empresa}
                                             </Badge>
                                         </div>
-                                        <div className="absolute inset-x-3 bottom-3 md:bottom-3 md:left-3 md:right-3 md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
-                                            <Button onClick={() => addToCart(producto)} className="w-full h-9 md:h-11 rounded-lg md:rounded-xl shadow-lg shadow-black/20 gap-1 md:gap-2 font-bold bg-white text-zinc-900 hover:bg-zinc-100 border-none transition-all active:scale-95 text-sm md:text-base">
-                                                <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" /> <span className="hidden md:inline">Agregar al Carrito</span><span className="md:hidden">Agregar</span>
+                                        
+                                        <div className="absolute inset-x-4 bottom-4 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10 flex justify-center hidden md:flex">
+                                            <Button onClick={() => addToCart(producto)} className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl shadow-xl gap-2 font-bold bg-steel-blue-600 text-white hover:bg-steel-blue-700 border-none transition-all active:scale-95 text-base md:text-lg">
+                                                <ShoppingCart className="h-5 w-5" /> Agregar al Carrito
                                             </Button>
                                         </div>
                                     </div>
-                                    <CardHeader className="pt-3 md:pt-6 pb-1 md:pb-2 px-3 md:px-5 flex-1 items-start space-y-0.5 md:space-y-1.5">
-                                        <div className="text-[8px] md:text-[10px] uppercase tracking-widest font-black text-primary/50">Categoría</div>
-                                        <CardTitle className="line-clamp-2 text-sm md:text-xl font-bold leading-tight group-hover:text-primary transition-colors">{producto.nombre}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="px-3 md:px-5 py-1 md:py-2">
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-lg md:text-2xl font-black tracking-tighter">Bs. {producto.precio}</span>
-                                            <span className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">BOB</span>
+                                    <div className="flex flex-col flex-1 p-5 md:p-6 bg-white dark:bg-zinc-900">
+                                        <div className="text-[10px] uppercase tracking-[0.2em] font-black text-steel-blue-400 mb-2 font-sans">Producto Exclusivo</div>
+                                        <h3 className="line-clamp-2 text-lg md:text-xl font-bold leading-tight text-zinc-900 dark:text-zinc-100 group-hover:text-steel-blue-600 dark:group-hover:text-steel-blue-400 transition-colors font-roboto mb-4 flex-1">{producto.nombre}</h3>
+                                        
+                                        <div className="flex items-center justify-between mt-auto">
+                                            <div className="flex items-baseline gap-1.5">
+                                                <span className="text-2xl md:text-3xl font-black tracking-tighter text-zinc-900 dark:text-white font-sans">Bs. {producto.precio}</span>
+                                                <span className="text-[10px] md:text-xs font-bold text-steel-blue-500 uppercase tracking-widest">BOB</span>
+                                            </div>
                                         </div>
-                                    </CardContent>
-                                    <CardFooter className="px-3 md:px-5 pb-3 md:pb-6 pt-2 md:pt-2 hidden md:flex">
-                                        <Button variant="outline" className="w-full rounded-lg md:rounded-xl h-9 md:h-11 border-zinc-200 dark:border-zinc-800 font-bold" onClick={() => addToCart(producto)}>
-                                            <ShoppingCart className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" /> <span className="text-xs md:text-base">Comprar</span>
-                                        </Button>
-                                    </CardFooter>
+                                        
+                                        <div className="mt-5 md:hidden">
+                                            <Button className="w-full rounded-xl h-12 bg-zinc-100 text-zinc-900 hover:bg-steel-blue-50 hover:text-steel-blue-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-steel-blue-900/50 border-none font-bold shadow-sm" onClick={() => addToCart(producto)}>
+                                                <ShoppingCart className="h-4 w-4 mr-2" /> Agregar
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </Card>
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-32 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] bg-zinc-50/50 dark:bg-zinc-900/20">
-                            <div className="h-20 w-20 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-6">
-                                <Package className="h-10 w-10 text-zinc-300 dark:text-zinc-700" />
+                        <div className="text-center py-32 border-2 border-dashed border-steel-blue-200 dark:border-zinc-800 rounded-[3rem] bg-zinc-50/50 dark:bg-zinc-900/20 shadow-inner">
+                            <div className="h-24 w-24 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-6 shadow-sm rotate-3">
+                                <Package className="h-12 w-12 text-steel-blue-300 dark:text-zinc-600 -rotate-3" />
                             </div>
-                            <h3 className="text-2xl font-bold mb-2">Catálogo en mantenimiento</h3>
-                            <p className="text-muted-foreground max-w-sm mx-auto">Pronto tendremos nuevos productos disponibles para ti. ¡Vuelve pronto!</p>
+                            <h3 className="text-2xl md:text-3xl font-black mb-3 font-roboto text-zinc-900 dark:text-white">Catálogo en construcción</h3>
+                            <p className="text-base md:text-lg text-zinc-500 max-w-md mx-auto font-medium">Pronto tendremos nuevos productos disponibles para ti. ¡Vuelve pronto a visitarnos!</p>
                         </div>
                     )}
                 </section>
@@ -456,7 +465,7 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                 </div>
             )}
 
-            <footer className="border-t py-12 md:py-20 bg-zinc-50 dark:bg-zinc-900/30">
+            <footer className="border-t border-steel-blue-100 dark:border-zinc-800 py-12 md:py-20 bg-white dark:bg-zinc-950">
                 <div className="container px-3 md:px-6 mx-auto">
                     <div className="grid gap-6 md:gap-12 grid-cols-2 md:grid-cols-4 items-start mb-10 md:mb-20 text-center md:text-left">
                         <div className="space-y-4">

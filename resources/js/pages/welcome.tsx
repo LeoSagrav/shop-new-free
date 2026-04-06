@@ -43,6 +43,7 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [isErrorOpen, setIsErrorOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     // Header scroll effect
     useEffect(() => {
@@ -61,6 +62,14 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
         localStorage.setItem('cart', JSON.stringify(cart));
     }, [cart]);
 
+    // Toast notification auto-hide
+    useEffect(() => {
+        if (toastMessage) {
+            const timer = setTimeout(() => setToastMessage(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [toastMessage]);
+
     const addToCart = (producto: Producto) => {
         setCart(prev => {
             const existing = prev.find(item => item.id === producto.id);
@@ -69,7 +78,7 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
             }
             return [...prev, { ...producto, cantidad: 1 }];
         });
-        setIsCartOpen(true);
+        setToastMessage(`${producto.nombre} agregado al carrito`);
     };
 
     const removeFromCart = (id: number) => {
@@ -136,22 +145,22 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                 ? 'bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b shadow-sm py-3' 
                 : 'bg-transparent py-5'
             }`}>
-                <div className="container px-4 md:px-6 flex items-center justify-between mx-auto">
+                <div className="container px-3 md:px-6 flex items-center justify-between mx-auto">
                     <Link href="#" className="flex items-center gap-2 group transition-transform hover:scale-105 active:scale-95">
-                        <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform">
-                            <Package className="h-6 w-6" />
+                        <div className="h-9 w-9 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform">
+                            <Package className="h-5 w-5 md:h-6 md:w-6" />
                         </div>
-                        <span className="font-bold text-xl tracking-tight">{empresa?.nombre_empresa || 'ShopFree'}</span>
+                        <span className="font-bold text-base md:text-xl tracking-tight truncate">{empresa?.nombre_empresa || 'ShopFree'}</span>
                     </Link>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                         <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="secondary" className="relative h-11 px-4 gap-2 rounded-full border shadow-sm hover:shadow-md transition-all">
-                                    <ShoppingCart className="h-5 w-5" />
-                                    <span className="hidden sm:inline font-medium">Mi Carrito</span>
+                                <Button variant="secondary" className="relative h-9 md:h-11 px-3 md:px-4 gap-2 rounded-full border shadow-sm hover:shadow-md transition-all">
+                                    <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
+                                    <span className="hidden md:inline font-medium">Mi Carrito</span>
                                     {cart.length > 0 && (
-                                        <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white dark:border-zinc-900 animate-in zoom-in">
+                                        <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[8px] md:text-[10px] font-bold rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center border-2 border-white dark:border-zinc-900 animate-in zoom-in">
                                             {cart.reduce((a, b) => a + b.cantidad, 0)}
                                         </span>
                                     )}
@@ -215,35 +224,64 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                                                 Continuar al Pago <ChevronRight className="h-5 w-5 ml-2" />
                                             </Button>
                                         </DialogTrigger>
-                                        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden rounded-2xl">
-                                            <form onSubmit={handleCheckout}>
+                                        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-2xl max-h-[90vh] flex flex-col">
+                                            <form onSubmit={handleCheckout} className="flex flex-col h-full">
                                                 <div className="bg-primary p-6 text-primary-foreground">
                                                     <DialogTitle className="text-2xl">Finalizar Pedido</DialogTitle>
-                                                    <DialogDescription className="text-primary-foreground/80 mt-1">Completa tus datos para que podamos procesar tu compra.</DialogDescription>
+                                                    <DialogDescription className="text-primary-foreground/80 mt-1">Completa tus datos y revisa tu compra</DialogDescription>
                                                 </div>
-                                                <div className="p-6 space-y-5">
-                                                    <div className="space-y-2">
-                                                        <Label htmlFor="cliente" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Nombre Completo</Label>
-                                                        <Input id="cliente" value={data.cliente} onChange={e => setData('cliente', e.target.value)} required placeholder="Juan Pérez" className="h-11 rounded-lg" />
-                                                        {errors.cliente && <p className="text-xs text-destructive">{errors.cliente}</p>}
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label htmlFor="celular" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Celular de Contacto</Label>
-                                                        <Input id="celular" value={data.celular} onChange={e => setData('celular', e.target.value)} required placeholder="77712345" className="h-11 rounded-lg" />
-                                                        {errors.celular && <p className="text-xs text-destructive">{errors.celular}</p>}
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="departamento" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Ciudad</Label>
-                                                            <Input id="departamento" value={data.departamento} onChange={e => setData('departamento', e.target.value)} required placeholder="La Paz" className="h-11 rounded-lg" />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="pais" className="text-xs uppercase tracking-wider font-bold text-zinc-500">País</Label>
-                                                            <Input id="pais" value={data.pais} onChange={e => setData('pais', e.target.value)} required className="h-11 rounded-lg" />
+                                                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                                                    {/* Productos del carrito */}
+                                                    <div className="space-y-3">
+                                                        <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Productos ({cart.length})</h3>
+                                                        <div className="space-y-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 border">
+                                                            {cart.map(item => (
+                                                                <div key={item.id} className="flex justify-between items-center text-sm py-2 px-1 border-b last:border-b-0">
+                                                                    <div>
+                                                                        <p className="font-medium text-zinc-900 dark:text-zinc-100">{item.nombre}</p>
+                                                                        <p className="text-xs text-muted-foreground">x{item.cantidad}</p>
+                                                                    </div>
+                                                                    <p className="font-semibold text-primary">Bs. {(item.precio * item.cantidad).toFixed(2)}</p>
+                                                                </div>
+                                                            ))}
                                                         </div>
                                                     </div>
+
+                                                    {/* Resumen total */}
+                                                    <div className="bg-primary/10 dark:bg-primary/5 rounded-lg p-4 border border-primary/20">
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="font-semibold text-zinc-900 dark:text-zinc-100">Total</span>
+                                                            <span className="text-2xl font-black text-primary">Bs. {cartTotal.toFixed(2)}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Formulario de datos */}
+                                                    <div className="space-y-4 pt-4 border-t">
+                                                        <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Tus Datos</h3>
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="cliente" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Nombre Completo</Label>
+                                                            <Input id="cliente" value={data.cliente} onChange={e => setData('cliente', e.target.value)} required placeholder="Juan Pérez" className="h-11 rounded-lg" />
+                                                            {errors.cliente && <p className="text-xs text-destructive">{errors.cliente}</p>}
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="celular" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Celular de Contacto</Label>
+                                                            <Input id="celular" value={data.celular} onChange={e => setData('celular', e.target.value)} required placeholder="77712345" className="h-11 rounded-lg" />
+                                                            {errors.celular && <p className="text-xs text-destructive">{errors.celular}</p>}
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="departamento" className="text-xs uppercase tracking-wider font-bold text-zinc-500">Ciudad</Label>
+                                                                <Input id="departamento" value={data.departamento} onChange={e => setData('departamento', e.target.value)} required placeholder="La Paz" className="h-11 rounded-lg" />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="pais" className="text-xs uppercase tracking-wider font-bold text-zinc-500">País</Label>
+                                                                <Input id="pais" value={data.pais} onChange={e => setData('pais', e.target.value)} required className="h-11 rounded-lg" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <DialogFooter className="p-6 pt-0">
+
+                                                <DialogFooter className="p-6 pt-0 border-t bg-zinc-50 dark:bg-zinc-900/30">
                                                     <Button type="submit" disabled={processing} className="w-full h-12 text-lg rounded-xl">
                                                         {processing ? 'Procesando...' : `Confirmar Pedido • Bs. ${cartTotal.toFixed(2)}`}
                                                     </Button>
@@ -255,14 +293,14 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                             </SheetContent>
                         </Sheet>
                         
-                        <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1 hidden sm:block"></div>
+                        <div className="h-6 md:h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1 hidden md:block"></div>
 
                         {auth.user ? (
-                            <Button asChild variant="ghost" className="rounded-full h-11 px-6 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800">
-                                <Link href={route('dashboard', { empresa: empresa.slug })}>Panel Control</Link>
+                            <Button asChild variant="ghost" className="rounded-full h-9 md:h-11 px-3 md:px-6 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs md:text-base">
+                                <Link href={route('dashboard', { empresa: empresa.slug })}>Panel</Link>
                             </Button>
                         ) : (
-                            <div className="hidden sm:flex items-center gap-1">
+                            <div className="hidden md:flex items-center gap-1">
                                 <Button asChild variant="ghost" className="rounded-full h-11 px-5 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800">
                                     <Link href={route('login')}>Ingresar</Link>
                                 </Button>
@@ -277,34 +315,35 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
 
             <main>
                 {/* Hero Section */}
-                <section className="relative pt-4 pb-4 overflow-hidden">
+                <section className="relative pt-3 md:pt-4 pb-3 md:pb-4 overflow-hidden">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-70"></div>
                     
-                    <div className="container px-4 md:px-6 mx-auto text-center">
-                        <Badge variant="outline" className="mb-6 px-4 py-1.5 rounded-full bg-white dark:bg-zinc-900 border-primary/20 text-primary font-bold tracking-wide uppercase text-[10px]">
+                    <div className="container px-3 md:px-6 mx-auto text-center">
+                        <Badge variant="outline" className="mb-3 md:mb-6 px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-white dark:bg-zinc-900 border-primary/20 text-primary font-bold tracking-wide uppercase text-[8px] md:text-[10px]">
                             Catálogo Oficial
                         </Badge>
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1]">Catálogo de Productos de <br />
-                            {empresa?.nombre_empresa} <br />
+                        <h1 className="text-2xl sm:text-3xl md:text-6xl font-extrabold tracking-tight mb-3 md:mb-6 leading-[1.1]">
+                            Catálogo de <br className="hidden md:block" />
+                            {empresa?.nombre_empresa}
                         </h1>
-                        <p className="text-lg md:text-xl text-muted-foreground max-w-[600px] mx-auto leading-relaxed mb-10">
-                            Explora nuestra selección exclusiva de productos de alta calidad, disponibles para entrega inmediata.
+                        <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-[600px] mx-auto leading-relaxed mb-6 md:mb-10">
+                            Explora nuestra selección exclusiva de productos de alta calidad.
                         </p>
                     </div>
                 </section>
 
-                <div className="container px-4 md:px-6 mx-auto">
-                    <Separator className="mb-16 opacity-50" />
+                <div className="container px-3 md:px-6 mx-auto">
+                    <Separator className="mb-8 md:mb-16 opacity-50" />
                 </div>
 
                 {/* Products Section */}
-                <section className="container px-4 md:px-6 pb-32 mx-auto">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-                        <div className="space-y-1">
-                            <h2 className="text-3xl font-bold tracking-tight lg:text-4xl">Nuestros Productos</h2>
-                            <p className="text-muted-foreground">Más de {productos.length} artículos disponibles para ti</p>
+                <section className="container px-3 md:px-6 pb-16 md:pb-32 mx-auto">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-12 gap-3 md:gap-6">
+                        <div className="space-y-0.5 md:space-y-1">
+                            <h2 className="text-2xl md:text-4xl font-bold tracking-tight">Nuestros Productos</h2>
+                            <p className="text-xs md:text-base text-muted-foreground">Más de {productos.length} artículos disponibles</p>
                         </div>
-                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 p-1 rounded-xl border shadow-sm self-start">
+                        <div className="flex items-center gap-1 md:gap-3 bg-white dark:bg-zinc-900 p-0.5 md:p-1 rounded-lg md:rounded-xl border shadow-sm self-start hidden md:flex">
                             <Button variant="secondary" size="sm" className="rounded-lg h-9 font-semibold">Todos</Button>
                             <Button variant="ghost" size="sm" className="rounded-lg h-9 text-muted-foreground font-medium">Populares</Button>
                             <Button variant="ghost" size="sm" className="rounded-lg h-9 text-muted-foreground font-medium">Nuevos</Button>
@@ -312,9 +351,9 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                     </div>
 
                     {productos.length > 0 ? (
-                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {productos.map((producto) => (
-                                <Card key={producto.id} className="group overflow-hidden bg-white dark:bg-zinc-900 border-zinc-200/60 dark:border-zinc-800 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 flex flex-col rounded-2xl">
+                                <Card key={producto.id} className="group overflow-hidden bg-white dark:bg-zinc-900 border-zinc-200/60 dark:border-zinc-800 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 flex flex-col rounded-xl md:rounded-2xl">
                                     <div className="aspect-[4/5] bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center relative overflow-hidden">
                                         {producto.imagen ? (
                                             <img 
@@ -326,30 +365,30 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                                             <Package className="h-20 w-20 text-zinc-200 dark:text-zinc-700" />
                                         )}
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="absolute top-3 left-3">
-                                            <Badge className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm text-zinc-900 dark:text-white border-none shadow-sm hover:bg-white">
+                                        <div className="absolute top-2 left-2 md:top-3 md:left-3">
+                                            <Badge className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm text-zinc-900 dark:text-white border-none shadow-sm hover:bg-white text-xs md:text-sm">
                                                 {empresa.nombre_empresa}
                                             </Badge>
                                         </div>
-                                        <div className="absolute bottom-3 left-3 right-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                                            <Button onClick={() => addToCart(producto)} className="w-full h-11 rounded-xl shadow-lg shadow-black/20 gap-2 font-bold bg-white text-zinc-900 hover:bg-zinc-100 border-none transition-all active:scale-95">
-                                                <ShoppingCart className="h-5 w-5" /> Agregar al Carrito
+                                        <div className="absolute inset-x-3 bottom-3 md:bottom-3 md:left-3 md:right-3 md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
+                                            <Button onClick={() => addToCart(producto)} className="w-full h-9 md:h-11 rounded-lg md:rounded-xl shadow-lg shadow-black/20 gap-1 md:gap-2 font-bold bg-white text-zinc-900 hover:bg-zinc-100 border-none transition-all active:scale-95 text-sm md:text-base">
+                                                <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" /> <span className="hidden md:inline">Agregar al Carrito</span><span className="md:hidden">Agregar</span>
                                             </Button>
                                         </div>
                                     </div>
-                                    <CardHeader className="pt-6 pb-2 px-5 flex-1 items-start space-y-1.5">
-                                        <div className="text-[10px] uppercase tracking-widest font-black text-primary/50">Categoría General</div>
-                                        <CardTitle className="line-clamp-2 text-xl font-bold leading-tight group-hover:text-primary transition-colors">{producto.nombre}</CardTitle>
+                                    <CardHeader className="pt-3 md:pt-6 pb-1 md:pb-2 px-3 md:px-5 flex-1 items-start space-y-0.5 md:space-y-1.5">
+                                        <div className="text-[8px] md:text-[10px] uppercase tracking-widest font-black text-primary/50">Categoría</div>
+                                        <CardTitle className="line-clamp-2 text-sm md:text-xl font-bold leading-tight group-hover:text-primary transition-colors">{producto.nombre}</CardTitle>
                                     </CardHeader>
-                                    <CardContent className="px-5 py-2">
+                                    <CardContent className="px-3 md:px-5 py-1 md:py-2">
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-2xl font-black tracking-tighter">Bs. {producto.precio}</span>
-                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Bolivianos</span>
+                                            <span className="text-lg md:text-2xl font-black tracking-tighter">Bs. {producto.precio}</span>
+                                            <span className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">BOB</span>
                                         </div>
                                     </CardContent>
-                                    <CardFooter className="px-5 pb-6 pt-2">
-                                        <Button variant="outline" className="w-full rounded-xl h-11 border-zinc-200 dark:border-zinc-800 font-bold sm:hidden" onClick={() => addToCart(producto)}>
-                                            <ShoppingCart className="h-4 w-4 mr-2" /> Comprar
+                                    <CardFooter className="px-3 md:px-5 pb-3 md:pb-6 pt-2 md:pt-2 hidden md:flex">
+                                        <Button variant="outline" className="w-full rounded-lg md:rounded-xl h-9 md:h-11 border-zinc-200 dark:border-zinc-800 font-bold" onClick={() => addToCart(producto)}>
+                                            <ShoppingCart className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" /> <span className="text-xs md:text-base">Comprar</span>
                                         </Button>
                                     </CardFooter>
                                 </Card>
@@ -407,48 +446,56 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                 </DialogContent>
             </Dialog>
 
-            <footer className="border-t py-20 bg-zinc-50 dark:bg-zinc-900/30">
-                <div className="container px-4 md:px-6 mx-auto">
-                    <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 items-start mb-20 text-center sm:text-left">
+            {/* Toast Notificación */}
+            {toastMessage && (
+                <div className="fixed bottom-4 left-3 right-3 md:bottom-6 md:left-1/2 md:-translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="bg-green-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg shadow-lg shadow-black/20 flex items-center gap-2 font-medium">
+                        <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+                        <span className="text-sm md:text-base truncate">{toastMessage}</span>
+                    </div>
+                </div>
+            )}
+
+            <footer className="border-t py-12 md:py-20 bg-zinc-50 dark:bg-zinc-900/30">
+                <div className="container px-3 md:px-6 mx-auto">
+                    <div className="grid gap-6 md:gap-12 grid-cols-2 md:grid-cols-4 items-start mb-10 md:mb-20 text-center md:text-left">
                         <div className="space-y-4">
-                            <div className="flex items-center justify-center sm:justify-start gap-2 font-bold text-xl">
-                                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-                                    <Package className="h-5 w-5" />
+                            <div className="flex items-center justify-center md:justify-start gap-2 font-bold text-lg md:text-xl">
+                                <div className="h-6 w-6 md:h-8 md:w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
+                                    <Package className="h-3.5 w-3.5 md:h-5 md:w-5" />
                                 </div>
-                                <span>{empresa?.nombre_empresa}</span>
+                                <span className="truncate">{empresa?.nombre_empresa}</span>
                             </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                                Tu destino premium para productos de alta calidad con entrega segura en todo el país.
+                            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                                Tu destino premium para productos de alta calidad.
                             </p>
                         </div>
                         <div className="space-y-4">
-                            <h4 className="font-bold uppercase tracking-widest text-xs py-1 transition-all border-b border-primary/20 inline-block">Navegación</h4>
-                            <ul className="space-y-2 text-sm text-muted-foreground font-medium">
+                            <h4 className="font-bold uppercase tracking-widest text-[10px] md:text-xs py-1 transition-all border-b border-primary/20 inline-block">Navegación</h4>
+                            <ul className="space-y-2 text-xs md:text-sm text-muted-foreground font-medium">
                                 <li><a href="#" className="hover:text-primary transition-colors">Inicio</a></li>
                                 <li><a href="#" className="hover:text-primary transition-colors">Productos</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">Categorías</a></li>
                             </ul>
                         </div>
                         <div className="space-y-4">
-                            <h4 className="font-bold uppercase tracking-widest text-xs py-1 transition-all border-b border-primary/20 inline-block">Soporte</h4>
-                            <ul className="space-y-2 text-sm text-muted-foreground font-medium">
+                            <h4 className="font-bold uppercase tracking-widest text-[10px] md:text-xs py-1 transition-all border-b border-primary/20 inline-block">Soporte</h4>
+                            <ul className="space-y-2 text-xs md:text-sm text-muted-foreground font-medium">
                                 <li><a href="#" className="hover:text-primary transition-colors">Envíos</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">Devoluciones</a></li>
                                 <li><a href="#" className="hover:text-primary transition-colors">Contacto</a></li>
                             </ul>
                         </div>
                         <div className="space-y-4">
-                            <h4 className="font-bold uppercase tracking-widest text-xs py-1 transition-all border-b border-primary/20 inline-block">Ubicación</h4>
-                            <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground font-medium">
-                                <MapPin className="h-4 w-4 text-primary" />
-                                <span>Bolivia (Todo el país)</span>
+                            <h4 className="font-bold uppercase tracking-widest text-[10px] md:text-xs py-1 transition-all border-b border-primary/20 inline-block">Ubicación</h4>
+                            <div className="flex items-center justify-center md:justify-start gap-2 text-xs md:text-sm text-muted-foreground font-medium">
+                                <MapPin className="h-3 w-3 md:h-4 md:w-4 text-primary flex-shrink-0" />
+                                <span>Bolivia</span>
                             </div>
                         </div>
                     </div>
-                    <Separator className="mb-10 opacity-30" />
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-muted-foreground font-medium">
+                    <Separator className="mb-6 md:mb-10 opacity-30" />
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 text-xs md:text-sm text-muted-foreground font-medium">
                         <p>© 2026 ShopFree para {empresa.nombre_empresa}. Todos los derechos reservados.</p>
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-4 md:gap-6">
                             <a href="#" className="hover:text-primary transition-colors">Privacidad</a>
                             <a href="#" className="hover:text-primary transition-colors">Términos</a>
                         </div>

@@ -1,10 +1,10 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Plus, Package, Trash2, Edit } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export default function Productos({ productos }: Props) {
-    const { tenant } = usePage().props as any;
+    const { tenant } = usePage().props as { tenant?: { slug?: string } };
     const slug = tenant?.slug || '';
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -34,6 +34,8 @@ export default function Productos({ productos }: Props) {
         },
     ];
     const [open, setOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [dragActive, setDragActive] = useState(false);
     const { data, setData, post, processing, reset, errors } = useForm({
         nombre: '',
         precio: '',
@@ -41,12 +43,55 @@ export default function Productos({ productos }: Props) {
         imagen: null as File | null,
     });
 
+    useEffect(() => {
+        return () => {
+            if (previewImage?.startsWith('blob:')) {
+                URL.revokeObjectURL(previewImage);
+            }
+        };
+    }, [previewImage]);
+
+    const handleFileChange = (file: File | null) => {
+        if (previewImage?.startsWith('blob:')) {
+            URL.revokeObjectURL(previewImage);
+        }
+
+        if (file) {
+            setPreviewImage(URL.createObjectURL(file));
+            setData('imagen', file);
+        } else {
+            setPreviewImage(null);
+            setData('imagen', null);
+        }
+    };
+
+    const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setDragActive(false);
+        const file = event.dataTransfer.files?.[0];
+
+        if (file && file.type.startsWith('image/')) {
+            handleFileChange(file);
+        }
+    };
+
+    const handleOpenChange = (value: boolean) => {
+        setOpen(value);
+
+        if (!value) {
+            setPreviewImage(null);
+            reset();
+        }
+    };
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         post(route('productos.store', { empresa: slug }), {
             onSuccess: () => {
                 setOpen(false);
                 reset();
+                setPreviewImage(null);
             },
         });
     };
@@ -63,7 +108,7 @@ export default function Productos({ productos }: Props) {
                     <p className="text-muted-foreground">Administra el catálogo de tu empresa.</p>
                 </div>
 
-                <Dialog open={open} onOpenChange={setOpen}>
+                <Dialog open={open} onOpenChange={handleOpenChange}>
                     <DialogTrigger asChild>
                         <Button className="gap-2">
                             <Plus className="h-4 w-4" />
@@ -116,12 +161,43 @@ export default function Productos({ productos }: Props) {
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="imagen">Imagen del Producto</Label>
-                                    <Input
-                                        id="imagen"
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => setData('imagen', e.target.files ? e.target.files[0] : null)}
-                                    />
+                                    <label
+                                        htmlFor="imagen"
+                                        onDragOver={(event) => {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                            setDragActive(true);
+                                        }}
+                                        onDragLeave={(event) => {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                            setDragActive(false);
+                                        }}
+                                        onDrop={handleDrop}
+                                        className={`group relative flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-background/80 px-4 py-6 text-center transition ${dragActive ? 'border-primary bg-primary/10' : 'border-border hover:border-primary'}`}
+                                    >
+                                        <input
+                                            id="imagen"
+                                            type="file"
+                                            accept="image/*"
+                                            className="sr-only"
+                                            onChange={(e) => handleFileChange(e.target.files ? e.target.files[0] : null)}
+                                        />
+
+                                        {previewImage ? (
+                                            <img
+                                                src={previewImage}
+                                                alt="Previsualización"
+                                                className="max-h-48 w-full rounded-md object-cover"
+                                            />
+                                        ) : (
+                                            <>
+                                                <Package className="h-8 w-8 text-muted-foreground" />
+                                                <p className="text-sm font-medium">Haz click o arrastra aquí tu imagen</p>
+                                                <p className="text-xs text-muted-foreground">Formatos JPG, PNG, GIF</p>
+                                            </>
+                                        )}
+                                    </label>
                                     {errors.imagen && <p className="text-sm text-destructive">{errors.imagen}</p>}
                                 </div>
                             </div>

@@ -264,34 +264,19 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
 
             <main>
                 {/* Hero Section */}
-                <section className="relative pt-12 pb-24 overflow-hidden">
+                <section className="relative pt-4 pb-4 overflow-hidden">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-70"></div>
                     
                     <div className="container px-4 md:px-6 mx-auto text-center">
                         <Badge variant="outline" className="mb-6 px-4 py-1.5 rounded-full bg-white dark:bg-zinc-900 border-primary/20 text-primary font-bold tracking-wide uppercase text-[10px]">
                             Catálogo Oficial
                         </Badge>
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1]">Catálogo de Productos de <br />
                             {empresa?.nombre_empresa} <br />
-                            <span className="text-zinc-400 font-medium">Catálogo de Productos</span>
                         </h1>
                         <p className="text-lg md:text-xl text-muted-foreground max-w-[600px] mx-auto leading-relaxed mb-10">
                             Explora nuestra selección exclusiva de productos de alta calidad, disponibles para entrega inmediata.
                         </p>
-                        
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm font-medium text-zinc-500">
-                            <div className="flex items-center gap-1.5 py-2 px-4 rounded-full bg-zinc-100 dark:bg-zinc-900 border transition-all hover:border-primary/30">
-                                <MapPin className="h-4 w-4 text-primary" /> Bolivia
-                            </div>
-                            {empresa?.celular && (
-                                <a href={`https://wa.me/${empresa.celular}`} target="_blank" className="flex items-center gap-1.5 py-2 px-4 rounded-full bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/50 transition-all hover:scale-105 active:scale-95">
-                                    <Phone className="h-4 w-4" /> WhatsApp Directo
-                                </a>
-                            )}
-                            <div className="flex items-center gap-1.5 py-2 px-4 rounded-full bg-zinc-100 dark:bg-zinc-900 border transition-all hover:border-primary/30">
-                                <Globe className="h-4 w-4 text-primary" /> Online 24/7
-                            </div>
-                        </div>
                     </div>
                 </section>
 

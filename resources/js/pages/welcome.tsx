@@ -317,26 +317,14 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
 
             <main>
                 {/* Hero Section */}
-                <section className="relative pt-12 md:pt-24 pb-16 md:pb-32 overflow-hidden bg-gradient-to-b from-steel-blue-50 to-zinc-50 dark:from-steel-blue-950 dark:to-zinc-950 border-b border-steel-blue-100 dark:border-zinc-800 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]">
+                <section className="relative pt-6 md:pt-12 pb-8 md:pb-16 overflow-hidden bg-gradient-to-b from-steel-blue-50 to-zinc-50 dark:from-steel-blue-950 dark:to-zinc-950 border-b border-steel-blue-100 dark:border-zinc-800 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]">
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CgkJPHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPgoJCTxwYXRoIGQ9Ik0wIDEybDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNEwwIDIwbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNEwwIDI4bDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNEwwIDM2bDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNG04IDAxbDQtNCIgc3Ryb2tlPSJyZ2JhKTEwNiwxNTQsMTk4LDAuMSkiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIvPgoJPC9zdmc+')] opacity-50 dark:opacity-20" />
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-steel-blue-400/20 via-transparent to-transparent opacity-100"></div>
                     
                     <div className="container relative z-10 px-4 md:px-6 mx-auto text-center">
                         <Badge variant="outline" className="mb-6 px-5 py-2 rounded-full bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md border-steel-blue-300 dark:border-steel-blue-800 text-steel-blue-700 dark:text-steel-blue-300 font-bold tracking-widest uppercase text-[10px] md:text-xs">
                             ✨ Catálogo Oficial
-                        </Badge>
-                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-6 leading-[1.1] text-zinc-900 dark:text-white font-roboto drop-shadow-sm">
-                            Descubre lo mejor de <br className="hidden md:block" />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-steel-blue-600 to-steel-blue-400 dark:from-steel-blue-400 dark:to-steel-blue-200">{empresa?.nombre_empresa}</span>
-                        </h1>
-                        <p className="text-sm sm:text-base md:text-xl text-zinc-600 dark:text-zinc-400 max-w-[700px] mx-auto leading-relaxed mb-10 font-sans font-medium">
-                            Explora nuestra selección exclusiva de productos de alta calidad, diseñados y pensados para brindarte la mejor experiencia de compra.
-                        </p>
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Button className="h-12 md:h-14 px-8 md:px-10 rounded-2xl bg-steel-blue-600 hover:bg-steel-blue-700 text-white font-bold shadow-xl shadow-steel-blue-600/20 transition-all hover:-translate-y-1 text-base md:text-lg w-full sm:w-auto">
-                                Ver Colección <ChevronRight className="ml-2 h-5 w-5" />
-                            </Button>
-                        </div>
+                        </Badge>                     
                     </div>
                 </section>
 
@@ -349,8 +337,6 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                         </div>
                         <div className="flex items-center gap-2 bg-zinc-100/50 dark:bg-zinc-950 p-1.5 rounded-2xl border border-steel-blue-100/50 dark:border-zinc-800 self-start md:self-center overflow-hidden">
                             <Button variant="secondary" size="sm" className="rounded-xl h-11 px-6 font-bold bg-white dark:bg-zinc-800 shadow-sm text-steel-blue-700 dark:text-steel-blue-300">Todos</Button>
-                            <Button variant="ghost" size="sm" className="rounded-xl h-11 px-6 font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Populares</Button>
-                            <Button variant="ghost" size="sm" className="rounded-xl h-11 px-6 font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Nuevos</Button>
                         </div>
                     </div>
 

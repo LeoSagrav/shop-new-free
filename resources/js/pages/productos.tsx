@@ -34,6 +34,7 @@ export default function Productos({ productos }: Props) {
         },
     ];
     const [open, setOpen] = useState(false);
+    const [planModalOpen, setPlanModalOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [dragActive, setDragActive] = useState(false);
     const { data, setData, post, processing, reset, errors } = useForm({
@@ -96,6 +97,7 @@ export default function Productos({ productos }: Props) {
         });
     };
 
+    const canAddProduct = productos.length < 6;
     const emptyCards = Array.from({ length: Math.max(0, 6 - productos.length) });
 
     return (
@@ -109,12 +111,24 @@ export default function Productos({ productos }: Props) {
                 </div>
 
                 <Dialog open={open} onOpenChange={handleOpenChange}>
-                    <DialogTrigger asChild>
-                        <Button className="gap-2">
+                    {canAddProduct ? (
+                        <DialogTrigger asChild>
+                            <Button className="gap-2">
+                                <Plus className="h-4 w-4" />
+                                Agregar producto
+                            </Button>
+                        </DialogTrigger>
+                    ) : (
+                        <Button
+                            className="gap-2 opacity-70"
+                            variant="outline"
+                            onClick={() => setPlanModalOpen(true)}
+                            aria-describedby="plan-limited-message"
+                        >
                             <Plus className="h-4 w-4" />
                             Agregar producto
                         </Button>
-                    </DialogTrigger>
+                    )}
                     <DialogContent className="sm:max-w-[425px]">
                         <form onSubmit={submit}>
                             <DialogHeader>
@@ -207,6 +221,36 @@ export default function Productos({ productos }: Props) {
                                 </Button>
                             </DialogFooter>
                         </form>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={planModalOpen} onOpenChange={setPlanModalOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Limite de productos alcanzado</DialogTitle>
+                            <DialogDescription>
+                                Has llegado al máximo de 6 productos con tu plan actual.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 text-sm text-muted-foreground">
+                            <p id="plan-limited-message">
+                                Para crear más productos, adquiere el plan <strong>Catálogo</strong>. Si necesitas funcionalidades adicionales, revisa los otros planes disponibles.
+                            </p>
+                            <ul className="list-disc pl-5">
+                                <li>Catálogo: más productos en tu tienda.</li>
+                                <li>Planes premium: funciones avanzadas y crecimiento.</li>
+                            </ul>
+                        </div>
+                        <DialogFooter className="flex flex-col gap-2">
+                            <Button asChild className="w-full">
+                                <a href="https://miracode.tech/1bs/" target="_blank" rel="noreferrer">
+                                    Ver planes
+                                </a>
+                            </Button>
+                            <Button variant="outline" className="w-full" onClick={() => setPlanModalOpen(false)}>
+                                Entendido
+                            </Button>
+                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </div>

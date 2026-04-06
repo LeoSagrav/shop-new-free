@@ -1,8 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
 import { Package, Clock, User, Phone, MapPin, CheckCircle2, ChevronRight, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem } from '@/types';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +34,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ pedidos }: DashboardProps) {
-    const { tenant } = usePage().props as any;
+    const { tenant } = usePage().props as { tenant?: { slug?: string } };
     const slug = tenant?.slug || '';
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -43,6 +45,7 @@ export default function Dashboard({ pedidos }: DashboardProps) {
     ];
     const totalSales = pedidos.reduce((acc, p) => acc + Number(p.total), 0);
     const totalOrders = pedidos.length;
+    const [orderPlanModalOpen, setOrderPlanModalOpen] = useState(false);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -94,7 +97,7 @@ export default function Dashboard({ pedidos }: DashboardProps) {
                                                     </div>
                                                     <div>
                                                         <h3 className="font-bold">{pedido.cliente}</h3>
-                                                        <p className="text-xs text-muted-foreground">Pedido #{pedido.id} • {new Date(pedido.created_at).toLocaleDateString()}</p>
+                                                        <p className="text-xs text-muted-foreground">Pedido realizado el {new Date(pedido.created_at).toLocaleDateString()}</p>
                                                     </div>
                                                 </div>
                                                 <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
@@ -128,10 +131,10 @@ export default function Dashboard({ pedidos }: DashboardProps) {
                                             </div>
                                         </div>
                                         <div className="bg-muted/30 md:w-48 p-6 flex flex-col justify-center gap-2 border-t md:border-t-0 md:border-l">
-                                            <Button size="sm" className="w-full gap-2">
+                                            <Button size="sm" className="w-full gap-2" onClick={() => setOrderPlanModalOpen(true)}>
                                                 <CheckCircle2 className="h-4 w-4" /> Procesar
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="w-full gap-2 group">
+                                            <Button variant="ghost" size="sm" className="w-full gap-2 group" onClick={() => setOrderPlanModalOpen(true)}>
                                                 Detalles <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                                             </Button>
                                         </div>
@@ -149,6 +152,35 @@ export default function Dashboard({ pedidos }: DashboardProps) {
                         )}
                     </div>
                 </div>
+
+                <Dialog open={orderPlanModalOpen} onOpenChange={setOrderPlanModalOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Administrar pedidos</DialogTitle>
+                            <DialogDescription>
+                                Si quieres gestionar tus pedidos en vivo, adquiere el plan <strong>Live-Cuaderno</strong>.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 text-sm text-muted-foreground">
+                            <p>
+                                Este plan te permite administrar y procesar pedidos directamente desde tu panel.
+                            </p>
+                            <p>
+                                También puedes elegir otros planes para obtener más funcionalidades y crecimiento en tu tienda.
+                            </p>
+                        </div>
+                        <DialogFooter className="flex flex-col gap-2">
+                            <Button asChild className="w-full">
+                                <a href="https://miracode.tech/1bs/" target="_blank" rel="noreferrer">
+                                    Ver planes
+                                </a>
+                            </Button>
+                            <Button variant="outline" className="w-full" onClick={() => setOrderPlanModalOpen(false)}>
+                                Cerrar
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );

@@ -9,11 +9,30 @@ use Inertia\Inertia;
 require __DIR__.'/auth-guest.php'; 
 
 Route::get('/', function () {
-    if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->empresa) {
-        return redirect()->route('dashboard', ['empresa' => \Illuminate\Support\Facades\Auth::user()->empresa->slug]);
+    if (\Illuminate\Support\Facades\Auth::check()) {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->hasRole('admin')) {
+            return redirect()->route('admin.users.index');
+        }
+        if ($user->empresa) {
+            return redirect()->route('dashboard', ['empresa' => $user->empresa->slug]);
+        }
     }
     return redirect('/login');
 })->name('home');
+
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('users', [\App\Http\Controllers\AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::delete('users/{user}', [\App\Http\Controllers\AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::post('users/{user}/toggle', [\App\Http\Controllers\AdminUserController::class, 'toggleActive'])->name('admin.users.toggle');
+    
+    Route::get('productos', [\App\Http\Controllers\AdminProductoController::class, 'index'])->name('admin.productos.index');
+    Route::get('pedidos', [\App\Http\Controllers\AdminPedidoController::class, 'index'])->name('admin.pedidos.index');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout');
+});
 
 Route::prefix('{empresa}')->group(function () {
     Route::get('/', function () {
@@ -52,9 +71,6 @@ Route::prefix('{empresa}')->group(function () {
             ->name('password.confirm');
 
         Route::post('confirm-password', [\App\Http\Controllers\Auth\ConfirmablePasswordController::class, 'store']);
-
-        Route::post('logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])
-            ->name('logout');
     });
 });
 

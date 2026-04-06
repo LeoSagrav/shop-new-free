@@ -49,6 +49,14 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+            
+            throw ValidationException::withMessages([
+                'email' => 'Tu cuenta ha sido desactivada por el administrador. Contacta a soporte para más detalles.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

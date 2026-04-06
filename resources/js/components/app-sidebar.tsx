@@ -2,16 +2,43 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BadgeDollarSign, BarChart3, BookOpenCheck, BotMessageSquare, Boxes, LayoutGrid, Package, Store, Wallet } from 'lucide-react';
+import { BadgeDollarSign, BarChart3, BookOpenCheck, BotMessageSquare, Boxes, LayoutGrid, Package, Store, Wallet, ShieldCheck, Users, Settings } from 'lucide-react';
 import AppLogo from './app-logo';
 
 // mainNavItems should be moved or redefined within AppSidebar to access props
 
 export function AppSidebar() {
-    const { tenant } = usePage().props as any;
+    const { tenant, auth } = usePage().props as any;
     const slug = tenant?.slug || '';
+    const isAdmin = auth?.isAdmin || false;
 
-    const mainNavItems: NavItem[] = [
+    const adminNavItems: NavItem[] = [
+        {
+            title: 'Super Panel',
+            url: '/admin/users',
+            icon: ShieldCheck,
+        },
+        {
+            title: 'Usuarios y Tiendas',
+            url: '/admin/users',
+            icon: Users,
+        },
+        {
+            title: 'Todos los Productos',
+            url: '/admin/productos',
+            icon: Package,
+            locked: false,
+        },
+        {
+            title: 'Todos los Pedidos',
+            url: '/admin/pedidos',
+            icon: BadgeDollarSign,
+            locked: false,
+        },
+        
+    ];
+
+    const tenantNavItems: NavItem[] = [
         {
             title: 'Dashboard',
             url: `/${slug}/dashboard`,
@@ -66,13 +93,15 @@ export function AppSidebar() {
         },
     ];
 
+    const mainNavItems = isAdmin ? adminNavItems : tenantNavItems;
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={`/${slug}/dashboard`} prefetch>
+                            <Link href={isAdmin ? '/admin/users' : `/${slug}/dashboard`} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

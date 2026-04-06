@@ -1,12 +1,12 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { Package, ShoppingCart, Trash2, CheckCircle2, ChevronRight, Phone, MapPin, Globe } from 'lucide-react';
+import { Package, ShoppingCart, Trash2, CheckCircle2, ChevronRight, MapPin } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { type SharedData } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -41,6 +41,7 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+    const [isErrorOpen, setIsErrorOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
     // Header scroll effect
@@ -98,17 +99,29 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
     useEffect(() => {
         const items = cart.map(item => ({ id: item.id, cantidad: item.cantidad }));
         setData('items', items);
-    }, [cart]);
+    }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleCheckout = (e: React.FormEvent) => {
         e.preventDefault();
         
         post(route('pedidos.store', { empresa: empresa.slug }), {
             onSuccess: () => {
+                // Capturar productos antes de vaciar el carrito
+                const productosTexto = cart.map(item => `${item.nombre} x${item.cantidad}`).join(', ');
+                const mensaje = `Hola soy ${data.cliente} de ${data.departamento} realice mi pedido de ${productosTexto} espero su confirmacion gracias.`;
+                
                 setCart([]);
                 setIsCheckoutOpen(false);
                 setIsSuccessOpen(true);
                 reset();
+                
+                // Enviar mensaje a WhatsApp si hay número disponible
+                if (empresa.celular) {
+                    window.open(`https://wa.me/${empresa.celular}?text=${encodeURIComponent(mensaje)}`, '_blank');
+                }
+            },
+            onError: () => {
+                setIsErrorOpen(true);
             },
         });
     };
@@ -369,6 +382,26 @@ export default function Welcome({ productos, empresa }: WelcomeProps) {
                     <div className="mt-10 px-6">
                         <Button className="w-full h-12 text-lg rounded-xl shadow-lg shadow-primary/20" onClick={() => setIsSuccessOpen(false)}>
                             Seguir Explorando
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isErrorOpen} onOpenChange={setIsErrorOpen}>
+                <DialogContent className="sm:max-w-md text-center py-16 rounded-[2rem] border-none shadow-2xl">
+                    <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20 mb-8 border border-red-100 dark:border-red-900/50">
+                        <Package className="h-12 w-12 text-red-600 dark:text-red-400" />
+                    </div>
+                    <DialogHeader className="space-y-3">
+                        <DialogTitle className="text-3xl font-black tracking-tight">Pedidos no disponibles</DialogTitle>
+                        <DialogDescription className="text-lg text-muted-foreground leading-relaxed px-4">
+                            Lo sentimos, los pedidos no están disponibles en este momento. <br />
+                            Contacta a <strong>{empresa.nombre_empresa}</strong> para más información.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-10 px-6">
+                        <Button className="w-full h-12 text-lg rounded-xl shadow-lg shadow-primary/20" onClick={() => setIsErrorOpen(false)}>
+                            Entendido
                         </Button>
                     </div>
                 </DialogContent>

@@ -51,6 +51,29 @@ export default function Dashboard({ pedidos }: DashboardProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard - Administrador" />
             
+            {totalOrders >= 50 && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-8 mx-4 md:mx-8">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                                <Package className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-amber-800 dark:text-amber-200">Límite de pedidos alcanzado</h3>
+                                <p className="text-sm text-amber-700 dark:text-amber-300">
+                                    Has cumplido con los 50 pedidos permitidos. Adquiere nuestros planes de catálogo o uno general del sistema con muchas más funcionalidades.
+                                </p>
+                            </div>
+                        </div>
+                        <Button asChild size="sm">
+                            <a href="https://miracode.tech/1bs/" target="_blank" rel="noreferrer">
+                                Ver planes
+                            </a>
+                        </Button>
+                    </div>
+                </div>
+            )}
+            
             <div className="flex h-full flex-1 flex-col gap-8 p-4 md:p-8">
                 {/* Stats Cards */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

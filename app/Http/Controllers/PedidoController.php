@@ -50,6 +50,14 @@ class PedidoController extends Controller
             ];
         }
 
+        // Check order limits for each company
+        foreach ($itemsByEmpresa as $empresa_id => $group) {
+            $pedidoCount = Pedido::where('empresa_id', $empresa_id)->count();
+            if ($pedidoCount >= 50) {
+                return back()->withErrors(['error' => 'Se ha alcanzado el límite máximo de 3 pedidos para esta empresa.']);
+            }
+        }
+
         DB::beginTransaction();
         try {
             foreach ($itemsByEmpresa as $empresa_id => $group) {

@@ -1,9 +1,9 @@
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Lock, Package, MessageCircle, ShoppingCart, LayoutList, ChevronRight, Store, Settings, Send } from 'lucide-react';
+import { Lock, MessageCircle, ShoppingCart, LayoutList, ChevronRight, Store } from 'lucide-react';
 import { useState } from 'react';
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
@@ -25,17 +25,20 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                     {items.map((item) => (
                         <SidebarMenuItem key={item.title}>
                             {item.locked ? (
-                                <SidebarMenuButton onClick={(e) => handleLockedClick(item.title, e)} className="text-muted-foreground hover:text-foreground group flex justify-between w-full relative overflow-hidden">
+                                <SidebarMenuButton
+                                    onClick={(e) => handleLockedClick(item.title, e)}
+                                    className="text-base text-muted-foreground hover:text-foreground group flex justify-between w-full relative overflow-hidden"
+                                >
                                     <div className="flex items-center gap-2">
-                                        {item.icon && <item.icon className="h-4 w-4" />}
+                                        {item.icon && <item.icon className="h-5 w-5" />}
                                         <span>{item.title}</span>
                                     </div>
-                                    <Lock className="h-3.5 w-3.5 opacity-50 transition-all group-hover:opacity-100 group-hover:text-amber-500" />
+                                    <Lock className="h-4 w-4 opacity-50 transition-all group-hover:opacity-100 group-hover:text-amber-500" />
                                 </SidebarMenuButton>
                             ) : (
-                                <SidebarMenuButton asChild isActive={item.url === page.url}>
+                                <SidebarMenuButton asChild isActive={item.url === page.url} className="text-base">
                                     <Link href={item.url} prefetch>
-                                        {item.icon && <item.icon />}
+                                        {item.icon && <item.icon className="h-5 w-5" />}
                                         <span>{item.title}</span>
                                     </Link>
                                 </SidebarMenuButton>

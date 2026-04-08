@@ -46,11 +46,13 @@ class RegisteredUserController extends Controller
             'celular.unique' => 'Este número de celular ya está registrado con otra cuenta.',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $plainPassword = $request->password; // Guardar temporalmente
+
+$user = User::create([
+    'name' => $request->name,
+    'email' => $request->email,
+    'password' => Hash::make($request->password), // ✅ Se hashea para la BD
+]);
 
         $empresa = $user->empresa()->create([
             'nombre_empresa' => $request->nombre_empresa,
@@ -60,8 +62,12 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
+       Auth::login($user);
 
-        return to_route('dashboard', ['empresa' => $empresa->slug]);
+// ✅ Guardar contraseña en claro SOLO en sesión (se autodestruye)
+$request->session()->put('temp_plain_password', $plainPassword);
+$request->session()->put('just_registered', true);
+
+return to_route('dashboard', ['empresa' => $empresa->slug]);
     }
 }

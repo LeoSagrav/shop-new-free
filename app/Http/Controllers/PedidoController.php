@@ -13,17 +13,32 @@ class PedidoController extends Controller
     /**
      * Display a listing of the orders for the authenticated user's company.
      */
-    public function index(Request $request)
-    {
-        $pedidos = $request->user()->empresa->pedidos()
-            ->with('productos')
-            ->latest()
-            ->get();
+   public function index(Request $request)
+{
+    $pedidos = $request->user()->empresa->pedidos()
+        ->with('productos')
+        ->latest()
+        ->get();
 
-        return Inertia::render('dashboard', [
-            'pedidos' => $pedidos
-        ]);
-    }
+    // ✅ Verificar si es usuario recién registrado (consumir el flag de sesión)
+    $isNewUser = $request->session()->pull('just_registered', false);
+$tempPassword = $request->session()->pull('temp_plain_password', null); // ✅ Consumir y eliminar
+
+$userData = $isNewUser ? [
+    'name' => $request->user()->name,
+    'email' => $request->user()->email,
+    'nombre_empresa' => $request->user()->empresa->nombre_empresa,
+    'celular' => $request->user()->empresa->celular,
+    'tipo' => $request->user()->empresa->tipo,
+    'password' => $tempPassword, // ⚠️ Solo para demo/dev
+] : null;
+
+return Inertia::render('dashboard', [
+    'pedidos' => $pedidos,
+    'isNewUser' => $isNewUser,
+    'userData' => $userData,
+]);
+}
 
     /**
      * Store a newly created order (Public Checkout).

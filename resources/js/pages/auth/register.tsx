@@ -51,6 +51,7 @@ export default function Register() {
     const [step, setStep] = useState(1);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [isSimulatingLoad, setIsSimulatingLoad] = useState(false);
+    const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm<RegisterForm>({
         name: '',
@@ -64,12 +65,35 @@ export default function Register() {
 
     const validateStep = (currentStep: number) => {
         clearErrors();
+        const nextErrors: Record<string, string> = {};
+
         if (currentStep === 1) {
-            if (!data.nombre_empresa || !data.tipo || !data.celular) return false;
+            if (!data.nombre_empresa?.trim()) {
+                nextErrors.nombre_empresa = 'Por favor ingresa el nombre de tu empresa';
+            }
+            if (!data.tipo?.trim()) {
+                nextErrors.tipo = 'Selecciona el tipo de negocio';
+            }
+            if (!data.celular?.trim()) {
+                nextErrors.celular = 'Ingresa un número de WhatsApp';
+            }
         } else if (currentStep === 2) {
-            if (!data.name || !data.email || !data.password || !data.password_confirmation) return false;
+            if (!data.name?.trim()) {
+                nextErrors.name = 'Ingresa tu nombre completo';
+            }
+            if (!data.email?.trim()) {
+                nextErrors.email = 'Ingresa tu correo electrónico';
+            }
+            if (!data.password?.trim()) {
+                nextErrors.password = 'Ingresa una contraseña';
+            }
+            if (!data.password_confirmation?.trim()) {
+                nextErrors.password_confirmation = 'Confirma tu contraseña';
+            }
         }
-        return true;
+
+        setStepErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
     };
 
     const nextStep = () => {
@@ -166,7 +190,7 @@ export default function Register() {
                                 placeholder="Ej: Mi Tienda Online"
                                 className="h-11 shadow-sm"
                             />
-                            <InputError message={errors.nombre_empresa} />
+                            <InputError message={errors.nombre_empresa || stepErrors.nombre_empresa} />
                         </div>
 
                         <div className="grid gap-2">
@@ -187,7 +211,7 @@ export default function Register() {
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <InputError message={errors.tipo} />
+                            <InputError message={errors.tipo || stepErrors.tipo} />
                         </div>
 
                         <div className="grid gap-2">
@@ -203,13 +227,13 @@ export default function Register() {
                                 placeholder="77712345"
                                 className="h-11 shadow-sm"
                             />
-                            <InputError message={errors.celular} />
+                            <InputError message={errors.celular || stepErrors.celular} />
                         </div>
 
                         <Button 
                             type="button" 
                             onClick={nextStep} 
-                            className="mt-4 h-12 text-lg shadow-lg"
+                            className="mt-4 h-12 text-lg text-white font-semibold shadow-lg bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-700 hover:to-cyan-500 transition-all hover:scale-[1.02] active:scale-[0.98]"
                         >
                             Siguiente <ChevronRight className="h-5 w-5 ml-2" />
                         </Button>
@@ -232,7 +256,7 @@ export default function Register() {
                                 placeholder="Ej: Juan Pérez"
                                 className="h-11 shadow-sm"
                             />
-                            <InputError message={errors.name} />
+                            <InputError message={errors.name || stepErrors.name} />
                         </div>
 
                         <div className="grid gap-2">
@@ -249,7 +273,7 @@ export default function Register() {
                                 placeholder="correo@ejemplo.com"
                                 className="h-11 shadow-sm"
                             />
-                            <InputError message={errors.email} />
+                            <InputError message={errors.email || stepErrors.email} />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -267,7 +291,7 @@ export default function Register() {
                                     placeholder="••••••••"
                                     className="h-11 shadow-sm"
                                 />
-                                <InputError message={errors.password} />
+                                <InputError message={errors.password || stepErrors.password} />
                             </div>
 
                             <div className="grid gap-2">
@@ -284,7 +308,7 @@ export default function Register() {
                                     placeholder="••••••••"
                                     className="h-11 shadow-sm"
                                 />
-                                <InputError message={errors.password_confirmation} />
+                                <InputError message={errors.password_confirmation || stepErrors.password_confirmation} />
                             </div>
                         </div>
 
@@ -292,7 +316,7 @@ export default function Register() {
                             <Button type="button" onClick={prevStep} variant="outline" className="h-12 text-lg">
                                 <ChevronLeft className="h-5 w-5 mr-2" /> Atrás
                             </Button>
-                            <Button type="button" onClick={nextStep} className="h-12 text-lg shadow-lg">
+                            <Button type="button" onClick={nextStep} className="h-12 text-lg text-white font-semibold shadow-lg bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-700 hover:to-cyan-500 transition-all hover:scale-[1.02] active:scale-[0.98]">
                                 Siguiente <ChevronRight className="h-5 w-5 ml-2" />
                             </Button>
                         </div>
@@ -344,7 +368,7 @@ export default function Register() {
                             <Button type="button" onClick={prevStep} variant="outline" className="h-12 text-lg" disabled={isSimulatingLoad}>
                                 <ChevronLeft className="h-5 w-5 mr-2" /> Volver
                             </Button>
-                            <Button type="submit" className="h-12 text-lg shadow-xl" disabled={processing || isSimulatingLoad}>
+                            <Button type="submit" className="h-12 text-lg text-white font-semibold shadow-xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-700 hover:to-cyan-500 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={processing || isSimulatingLoad}>
                                 {(processing || isSimulatingLoad) ? (
                                     <><LoaderCircle className="h-5 w-5 animate-spin mr-2" /> Creando...</>
                                 ) : (

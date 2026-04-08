@@ -120,7 +120,6 @@ export default function Register() {
         e.preventDefault();
         setIsSimulatingLoad(true);
 
-        // Simulating a slightly longer loader for better UX as requested
         setTimeout(() => {
             post(route('register'), {
                 onFinish: () => {
@@ -132,7 +131,6 @@ export default function Register() {
                 },
                 onError: () => {
                     setIsSimulatingLoad(false);
-                    // If there are errors (e.g. email taken), find where they are and go back to that step
                     if (errors.email || errors.name || errors.password) setStep(2);
                     else if (errors.nombre_empresa || errors.tipo || errors.celular) setStep(1);
                 },
@@ -146,6 +144,8 @@ export default function Register() {
         { id: 3, label: 'Revisión', icon: Eye },
     ];
 
+    const isLoading = processing || isSimulatingLoad;
+
     return (
         <AuthLayout
             title={step === 3 ? 'Verifica tus datos' : 'Crea tu cuenta'}
@@ -158,6 +158,40 @@ export default function Register() {
             }
         >
             <Head title="Registro Multipaso" />
+
+            {/* Custom Loader Styles */}
+            <style>{`
+                .custom-loader {
+                    --d:22px;
+                    width: 4px;
+                    height: 4px;
+                    border-radius: 50%;
+                    color: #5286F4;
+                    box-shadow: 
+                        calc(1*var(--d))      calc(0*var(--d))     0 0,
+                        calc(0.707*var(--d))  calc(0.707*var(--d)) 0 1px,
+                        calc(0*var(--d))      calc(1*var(--d))     0 2px,
+                        calc(-0.707*var(--d)) calc(0.707*var(--d)) 0 3px,
+                        calc(-1*var(--d))     calc(0*var(--d))     0 4px,
+                        calc(-0.707*var(--d)) calc(-0.707*var(--d))0 5px,
+                        calc(0*var(--d))      calc(-1*var(--d))    0 6px;
+                    animation: s7 1s infinite steps(8);
+                }
+
+                @keyframes s7 {
+                    100% {transform: rotate(1turn)}
+                }
+            `}</style>
+
+            {/* Full Page Loader Overlay */}
+            {isLoading && (
+                <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 dark:bg-zinc-950/90 backdrop-blur-sm">
+                    <div className="custom-loader mb-6"></div>
+                    <p className="text-zinc-700 dark:text-zinc-300 text-center text-lg font-medium">
+                        Espera un momento, se está creando tu página...
+                    </p>
+                </div>
+            )}
 
             {/* Stepper Visual */}
             <div className="relative mb-10">
@@ -195,7 +229,7 @@ export default function Register() {
             </div>
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
-                {/* Paso 1: Información da la Empresa */}
+                {/* Paso 1: Información de la Empresa */}
                 {step === 1 && (
                     <div className="animate-in fade-in slide-in-from-right-4 grid gap-6 duration-500">
                         <div className="grid gap-2">
@@ -207,7 +241,7 @@ export default function Register() {
                                 required
                                 value={data.nombre_empresa}
                                 onChange={(e) => setData('nombre_empresa', e.target.value)}
-                                disabled={processing}
+                                disabled={isLoading}
                                 placeholder="Ej: Mi Tienda Online"
                                 className="h-11 shadow-sm"
                             />
@@ -218,7 +252,7 @@ export default function Register() {
                             <Label htmlFor="tipo" className="flex items-center gap-2 font-bold text-zinc-700 dark:text-zinc-300">
                                 <Briefcase className="h-4 w-4 opacity-70" /> Tipo de Negocio
                             </Label>
-                            <Select value={data.tipo} onValueChange={(value) => setData('tipo', value)} disabled={processing}>
+                            <Select value={data.tipo} onValueChange={(value) => setData('tipo', value)} disabled={isLoading}>
                                 <SelectTrigger className="h-11 shadow-sm">
                                     <SelectValue placeholder="Selecciona un tipo" />
                                 </SelectTrigger>
@@ -246,7 +280,7 @@ export default function Register() {
                                     required
                                     value={data.celular}
                                     onChange={(e) => setData('celular', formatBoliviaPhoneInput(e.target.value))}
-                                    disabled={processing}
+                                    disabled={isLoading}
                                     placeholder="77123456"
                                     inputMode="numeric"
                                     maxLength={8}
@@ -259,6 +293,7 @@ export default function Register() {
                         <Button
                             type="button"
                             onClick={nextStep}
+                            disabled={isLoading}
                             className="mt-4 h-12 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:from-blue-700 hover:to-cyan-500 active:scale-[0.98]"
                         >
                             Siguiente <ChevronRight className="ml-2 h-5 w-5" />
@@ -278,7 +313,7 @@ export default function Register() {
                                 required
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
-                                disabled={processing}
+                                disabled={isLoading}
                                 placeholder="Ej: Juan Pérez"
                                 className="h-11 shadow-sm"
                             />
@@ -295,7 +330,7 @@ export default function Register() {
                                 required
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
-                                disabled={processing}
+                                disabled={isLoading}
                                 placeholder="correo@ejemplo.com"
                                 className="h-11 shadow-sm"
                             />
@@ -317,7 +352,7 @@ export default function Register() {
                                     required
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    disabled={processing}
+                                    disabled={isLoading}
                                     placeholder="••••••••"
                                     className="h-11 shadow-sm"
                                 />
@@ -334,7 +369,7 @@ export default function Register() {
                                     required
                                     value={data.password_confirmation}
                                     onChange={(e) => setData('password_confirmation', e.target.value)}
-                                    disabled={processing}
+                                    disabled={isLoading}
                                     placeholder="••••••••"
                                     className="h-11 shadow-sm"
                                 />
@@ -343,12 +378,13 @@ export default function Register() {
                         </div>
 
                         <div className="mt-4 grid grid-cols-2 gap-4">
-                            <Button type="button" onClick={prevStep} variant="outline" className="h-12 text-lg">
+                            <Button type="button" onClick={prevStep} variant="outline" className="h-12 text-lg" disabled={isLoading}>
                                 <ChevronLeft className="mr-2 h-5 w-5" /> Atrás
                             </Button>
                             <Button
                                 type="button"
                                 onClick={nextStep}
+                                disabled={isLoading}
                                 className="h-12 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:from-blue-700 hover:to-cyan-500 active:scale-[0.98]"
                             >
                                 Siguiente <ChevronRight className="ml-2 h-5 w-5" />
@@ -408,18 +444,18 @@ export default function Register() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <Button type="button" onClick={prevStep} variant="outline" className="h-12 text-lg" disabled={isSimulatingLoad}>
+                            <Button type="button" onClick={prevStep} variant="outline" className="h-12 text-lg" disabled={isLoading}>
                                 <ChevronLeft className="mr-2 h-5 w-5" /> Volver
                             </Button>
 
                             <Button
                                 type="submit"
                                 className="h-12 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 text-lg font-semibold text-white shadow-xl transition-all hover:scale-[1.02] hover:from-blue-700 hover:to-cyan-500 active:scale-[0.98]"
-                                disabled={processing || isSimulatingLoad}
+                                disabled={isLoading}
                             >
-                                {processing || isSimulatingLoad ? (
+                                {isLoading ? (
                                     <>
-                                        <LoaderCircle className="mr-2 h-5 w-5 animate-spin" /> Creando...
+                                        <LoaderCircle className="mr-2 h-5 w-5 animate-spin" /> Procesando...
                                     </>
                                 ) : (
                                     'Crear Cuenta'

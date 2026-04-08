@@ -1,5 +1,5 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import { LoaderCircle, Mail, Lock } from 'lucide-react';
+import { LoaderCircle, Mail, Lock, Sparkles, ArrowRight } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
@@ -123,15 +123,34 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     </Button>
                 </div>
 
-                {/* REGISTER */}
-                <div className="text-muted-foreground text-center text-sm">
-                    ¿No tienes una cuenta aún?{' '}
+                {/* SEPARADOR */}
+                <div className="relative py-2">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-muted" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">o</span>
+                    </div>
+                </div>
+
+                {/* REGISTER DESTACADO 🎯 */}
+                <div className="text-center">
+                    <p className="text-muted-foreground mb-3 text-sm">
+                        ¿Nuevo por aquí? Crea tu cuenta en menos de 1 minuto
+                    </p>
                     <Link 
                         href={route('register')} 
-                        className="font-semibold text-primary underline-offset-4 hover:underline"
                         tabIndex={5}
+                        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl 
+                                   bg-gradient-to-r from-emerald-500 via-green-500 to-teal-400 
+                                   px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-green-500/25 
+                                   transition-all hover:scale-[1.02] hover:from-emerald-600 hover:to-teal-500 
+                                   hover:shadow-xl hover:shadow-green-500/40 active:scale-[0.98] focus:outline-none focus:ring-2 
+                                   focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
                     >
-                        Regístrate gratis
+                        <Sparkles className="h-5 w-5 transition-transform group-hover:rotate-12" />
+                        <span>Regístrate gratis</span>
+                        <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
             </form>

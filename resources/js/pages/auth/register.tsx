@@ -63,6 +63,28 @@ export default function Register() {
         tipo: '',
     });
 
+    const normalizeBoliviaPhone = (value: string) => {
+        const digits = value.replace(/\D/g, '');
+        return digits.startsWith('591') ? digits.slice(3) : digits;
+    };
+
+    const formatBoliviaPhoneInput = (value: string) => {
+        const digits = value.replace(/\D/g, '');
+        if (!digits) {
+            return '';
+        }
+
+        if (!/^[67]/.test(digits)) {
+            const validStart = digits.match(/[67]/);
+            if (!validStart) {
+                return '';
+            }
+            return digits.slice(digits.indexOf(validStart[0]));
+        }
+
+        return digits.slice(0, 8);
+    };
+
     const validateStep = (currentStep: number) => {
         clearErrors();
         const nextErrors: Record<string, string> = {};
@@ -74,8 +96,11 @@ export default function Register() {
             if (!data.tipo?.trim()) {
                 nextErrors.tipo = 'Selecciona el tipo de negocio';
             }
-            if (!data.celular?.trim()) {
+            const celular = normalizeBoliviaPhone(data.celular || '');
+            if (!celular) {
                 nextErrors.celular = 'Ingresa un número de WhatsApp';
+            } else if (!/^[67]\d{7}$/.test(celular)) {
+                nextErrors.celular = 'Ingresa un numero de celular válido';
             }
         } else if (currentStep === 2) {
             if (!data.name?.trim()) {
@@ -136,7 +161,7 @@ export default function Register() {
 
     return (
         <AuthLayout 
-            title={step === 3 ? "Verifica tus datos" : "Crea tu cuenta profesional"} 
+            title={step === 3 ? "Verifica tus datos" : "Crea tu cuenta"} 
             description={
                 step === 1 ? "Comencemos con la información de tu empresa o negocio" :
                 step === 2 ? "Ahora configura los datos de acceso para tu cuenta" :
@@ -218,15 +243,22 @@ export default function Register() {
                             <Label htmlFor="celular" className="flex items-center gap-2 font-bold text-zinc-700 dark:text-zinc-300">
                                 <Phone className="h-4 w-4 opacity-70" /> Celular de WhatsApp
                             </Label>
-                            <Input
-                                id="celular"
-                                required
-                                value={data.celular}
-                                onChange={(e) => setData('celular', e.target.value)}
-                                disabled={processing}
-                                placeholder="77712345"
-                                className="h-11 shadow-sm"
-                            />
+                            <div className="flex rounded-lg border border-input bg-background shadow-sm">
+                                <span className="inline-flex items-center rounded-l-lg bg-slate-100 px-3 text-sm text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">
+                                    🇧🇴 +591
+                                </span>
+                                <Input
+                                    id="celular"
+                                    required
+                                    value={data.celular}
+                                    onChange={(e) => setData('celular', formatBoliviaPhoneInput(e.target.value))}
+                                    disabled={processing}
+                                    placeholder="77123456"
+                                    inputMode="numeric"
+                                    maxLength={8}
+                                    className="h-11 flex-1 rounded-l-none border-none shadow-none"
+                                />
+                            </div>
                             <InputError message={errors.celular || stepErrors.celular} />
                         </div>
 
@@ -342,7 +374,7 @@ export default function Register() {
                                     </div>
                                     <div>
                                         <p className="text-muted-foreground">Contacto</p>
-                                        <p className="font-bold">{data.celular}</p>
+                                        <p className="font-bold">+591{data.celular}</p>
                                     </div>
                                 </div>
                             </div>

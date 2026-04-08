@@ -91,7 +91,7 @@ export default function Dashboard({ pedidos, isNewUser = false, userData }: Dash
                             </div>
                         </div>
                         <Button asChild size="sm">
-                            <a href="https://miracode.tech/1bs/" target="_blank" rel="noreferrer">
+                            <a href="https://miracode.tech/precios/" target="_blank" rel="noreferrer">
                                 Ver planes
                             </a>
                         </Button>
@@ -230,7 +230,7 @@ export default function Dashboard({ pedidos, isNewUser = false, userData }: Dash
                         </div>
                         <DialogFooter className="flex flex-col gap-2">
                             <Button asChild className="w-full">
-                                <a href="https://miracode.tech/1bs/" target="_blank" rel="noreferrer">
+                                <a href="https://miracode.tech/precios" target="_blank" rel="noreferrer">
                                     Ver planes
                                 </a>
                             </Button>

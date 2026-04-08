@@ -116,7 +116,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
 
                         <div className="flex flex-col sm:flex-row gap-3">
                             <Button className="flex-1 h-12 rounded-xl text-md shadow-lg shadow-primary/20" asChild>
-                                <a href="https://miracode.tech/1bs/" target="_blank" rel="noopener noreferrer">
+                                <a href="https://miracode.tech/precios/" target="_blank" rel="noopener noreferrer">
                                     Visitar pagina <ChevronRight className="h-5 w-5 ml-1 inline-block" />
                                 </a>
                             </Button>

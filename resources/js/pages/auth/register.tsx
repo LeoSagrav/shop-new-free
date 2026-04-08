@@ -1,6 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Briefcase, Building2, Check, CheckCircle2, ChevronLeft, ChevronRight, Eye, LoaderCircle, Lock, Mail, Phone, User } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { Briefcase, Building2, Check, CheckCircle2, ChevronLeft, ChevronRight, Eye, EyeOff, LoaderCircle, Lock, Mail, Phone, User, AlertCircle } from 'lucide-react';
+import { FormEventHandler, useState, useEffect } from 'react';
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,12 @@ export default function Register() {
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [isSimulatingLoad, setIsSimulatingLoad] = useState(false);
     const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
+    const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
+    const [duplicateField, setDuplicateField] = useState<string | null>(null);
+    
+    // Estados para visibilidad de contraseñas
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm<RegisterForm>({
         name: '',
@@ -49,6 +55,24 @@ export default function Register() {
         celular: '',
         tipo: '',
     });
+
+    // Mostrar alerta cuando hay errores de duplicados
+    useEffect(() => {
+        if (errors.email?.includes('ya está registrado') || 
+            errors.nombre_empresa?.includes('ya está registrado') || 
+            errors.celular?.includes('ya está registrado')) {
+            
+            const field = errors.email?.includes('ya está registrado') ? 'email' : 
+                         errors.nombre_empresa?.includes('ya está registrado') ? 'nombre_empresa' : 'celular';
+            
+            setDuplicateField(field);
+            setShowDuplicateAlert(true);
+            
+            // Auto-ocultar después de 8 segundos
+            const timer = setTimeout(() => setShowDuplicateAlert(false), 8000);
+            return () => clearTimeout(timer);
+        }
+    }, [errors]);
 
     const normalizeBoliviaPhone = (value: string) => {
         const digits = value.replace(/\D/g, '');
@@ -118,6 +142,8 @@ export default function Register() {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowDuplicateAlert(false);
+        setDuplicateField(null);
         setIsSimulatingLoad(true);
 
         setTimeout(() => {
@@ -131,6 +157,7 @@ export default function Register() {
                 },
                 onError: () => {
                     setIsSimulatingLoad(false);
+                    // Redirigir al paso correspondiente según el error
                     if (errors.email || errors.name || errors.password) setStep(2);
                     else if (errors.nombre_empresa || errors.tipo || errors.celular) setStep(1);
                 },
@@ -145,6 +172,18 @@ export default function Register() {
     ];
 
     const isLoading = processing || isSimulatingLoad;
+
+    // Función para obtener mensaje de ayuda según el campo duplicado
+    const getDuplicateHelpMessage = () => {
+        switch (duplicateField) {
+            case 'email':
+                return '¿Ya tienes cuenta? <a href="'+route('login')+'" class="font-bold underline">Inicia sesión aquí</a>';
+            case 'celular':
+                return '¿Es tu número? <a href="'+route('login')+'" class="font-bold underline">Recupera tu acceso</a>';
+            default:
+                return 'Por favor elige un nombre diferente para tu empresa.';
+        }
+    };
 
     return (
         <AuthLayout
@@ -190,6 +229,32 @@ export default function Register() {
                     <p className="text-zinc-700 dark:text-zinc-300 text-center text-lg font-medium">
                         Espera un momento, se está creando tu página...
                     </p>
+                </div>
+            )}
+
+            {/* Alerta de datos duplicados */}
+            {showDuplicateAlert && duplicateField && (
+                <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/30 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="mt-0.5 h-5 w-5 text-amber-600 dark:text-amber-400" />
+                        <div className="flex-1">
+                            <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                                {duplicateField === 'email' && 'Correo ya registrado'}
+                                {duplicateField === 'nombre_empresa' && 'Empresa ya registrada'}
+                                {duplicateField === 'celular' && 'Celular ya registrado'}
+                            </p>
+                            <p 
+                                className="text-amber-700 dark:text-amber-300 mt-1 text-sm"
+                                dangerouslySetInnerHTML={{ __html: getDuplicateHelpMessage() }}
+                            />
+                        </div>
+                        <button 
+                            onClick={() => setShowDuplicateAlert(false)}
+                            className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-300"
+                        >
+                            ✕
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -240,10 +305,13 @@ export default function Register() {
                                 id="nombre_empresa"
                                 required
                                 value={data.nombre_empresa}
-                                onChange={(e) => setData('nombre_empresa', e.target.value)}
+                                onChange={(e) => {
+                                    setData('nombre_empresa', e.target.value);
+                                    if (errors.nombre_empresa) clearErrors('nombre_empresa');
+                                }}
                                 disabled={isLoading}
                                 placeholder="Ej: Mi Tienda Online"
-                                className="h-11 shadow-sm"
+                                className={cn("h-11 shadow-sm", errors.nombre_empresa?.includes('único') && "border-red-500 focus-visible:ring-red-500")}
                             />
                             <InputError message={errors.nombre_empresa || stepErrors.nombre_empresa} />
                         </div>
@@ -252,7 +320,10 @@ export default function Register() {
                             <Label htmlFor="tipo" className="flex items-center gap-2 font-bold text-zinc-700 dark:text-zinc-300">
                                 <Briefcase className="h-4 w-4 opacity-70" /> Tipo de Negocio
                             </Label>
-                            <Select value={data.tipo} onValueChange={(value) => setData('tipo', value)} disabled={isLoading}>
+                            <Select value={data.tipo} onValueChange={(value) => {
+                                setData('tipo', value);
+                                if (errors.tipo) clearErrors('tipo');
+                            }} disabled={isLoading}>
                                 <SelectTrigger className="h-11 shadow-sm">
                                     <SelectValue placeholder="Selecciona un tipo" />
                                 </SelectTrigger>
@@ -271,7 +342,7 @@ export default function Register() {
                             <Label htmlFor="celular" className="flex items-center gap-2 font-bold text-zinc-700 dark:text-zinc-300">
                                 <Phone className="h-4 w-4 opacity-70" /> Celular de WhatsApp
                             </Label>
-                            <div className="border-input bg-background flex rounded-lg border shadow-sm">
+                            <div className={cn("border-input bg-background flex rounded-lg border shadow-sm", errors.celular?.includes('único') && "border-red-500 focus-within:ring-red-500")}>
                                 <span className="inline-flex items-center rounded-l-lg bg-slate-100 px-3 text-sm text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">
                                     🇧🇴 +591
                                 </span>
@@ -279,7 +350,10 @@ export default function Register() {
                                     id="celular"
                                     required
                                     value={data.celular}
-                                    onChange={(e) => setData('celular', formatBoliviaPhoneInput(e.target.value))}
+                                    onChange={(e) => {
+                                        setData('celular', formatBoliviaPhoneInput(e.target.value));
+                                        if (errors.celular) clearErrors('celular');
+                                    }}
                                     disabled={isLoading}
                                     placeholder="77123456"
                                     inputMode="numeric"
@@ -312,7 +386,10 @@ export default function Register() {
                                 id="name"
                                 required
                                 value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
+                                onChange={(e) => {
+                                    setData('name', e.target.value);
+                                    if (errors.name) clearErrors('name');
+                                }}
                                 disabled={isLoading}
                                 placeholder="Ej: Juan Pérez"
                                 className="h-11 shadow-sm"
@@ -329,15 +406,19 @@ export default function Register() {
                                 type="email"
                                 required
                                 value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
+                                onChange={(e) => {
+                                    setData('email', e.target.value);
+                                    if (errors.email) clearErrors('email');
+                                }}
                                 disabled={isLoading}
                                 placeholder="correo@ejemplo.com"
-                                className="h-11 shadow-sm"
+                                className={cn("h-11 shadow-sm", errors.email?.includes('único') && "border-red-500 focus-visible:ring-red-500")}
                             />
                             <InputError message={errors.email || stepErrors.email} />
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            {/* PASSWORD con toggle de visibilidad */}
                             <div className="grid gap-2">
                                 <Label
                                     htmlFor="password"
@@ -346,33 +427,70 @@ export default function Register() {
                                 >
                                     <Lock className="h-4 w-4 opacity-70" /> Contraseña
                                 </Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    required
-                                    value={data.password}
-                                    onChange={(e) => setData('password', e.target.value)}
-                                    disabled={isLoading}
-                                    placeholder="••••••••"
-                                    className="h-11 shadow-sm"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="password"
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        value={data.password}
+                                        onChange={(e) => {
+                                            setData('password', e.target.value);
+                                            if (errors.password) clearErrors('password');
+                                        }}
+                                        disabled={isLoading}
+                                        placeholder="••••••••"
+                                        className="h-11 shadow-sm pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        tabIndex={-1}
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm p-0.5"
+                                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="h-4 w-4" />
+                                        ) : (
+                                            <Eye className="h-4 w-4" />
+                                        )}
+                                    </button>
+                                </div>
                                 <InputError message={errors.password || stepErrors.password} />
                             </div>
 
+                            {/* PASSWORD CONFIRMATION con toggle de visibilidad */}
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation" className="flex items-center gap-2 font-bold text-zinc-700 dark:text-zinc-300">
                                     <Lock className="h-4 w-4 opacity-70" /> Confirmar
                                 </Label>
-                                <Input
-                                    id="password_confirmation"
-                                    type="password"
-                                    required
-                                    value={data.password_confirmation}
-                                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                                    disabled={isLoading}
-                                    placeholder="••••••••"
-                                    className="h-11 shadow-sm"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="password_confirmation"
+                                        type={showPasswordConfirm ? "text" : "password"}
+                                        required
+                                        value={data.password_confirmation}
+                                        onChange={(e) => {
+                                            setData('password_confirmation', e.target.value);
+                                            if (errors.password_confirmation) clearErrors('password_confirmation');
+                                        }}
+                                        disabled={isLoading}
+                                        placeholder="••••••••"
+                                        className="h-11 shadow-sm pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        tabIndex={-1}
+                                        onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-sm p-0.5"
+                                        aria-label={showPasswordConfirm ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                    >
+                                        {showPasswordConfirm ? (
+                                            <EyeOff className="h-4 w-4" />
+                                        ) : (
+                                            <Eye className="h-4 w-4" />
+                                        )}
+                                    </button>
+                                </div>
                                 <InputError message={errors.password_confirmation || stepErrors.password_confirmation} />
                             </div>
                         </div>

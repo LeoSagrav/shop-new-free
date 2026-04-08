@@ -31,13 +31,19 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        // Validación con reglas personalizadas para mensajes más claros
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'nombre_empresa' => 'required|string|max:255',
-            'celular' => 'required|string|max:20',
+            'nombre_empresa' => 'required|string|max:255|unique:empresas,nombre_empresa',
+            'celular' => 'required|string|max:20|unique:empresas,celular',
             'tipo' => 'required|string|max:255',
+        ], [
+            // Mensajes personalizados para validaciones únicas
+            'email.unique' => 'Este correo electrónico ya está registrado. Por favor usa otro o :link.',
+            'nombre_empresa.unique' => 'Este nombre de empresa ya está registrado. Por favor elige otro nombre.',
+            'celular.unique' => 'Este número de celular ya está registrado con otra cuenta.',
         ]);
 
         $user = User::create([

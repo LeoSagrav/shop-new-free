@@ -43,13 +43,15 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             <Head title="Iniciar Sesión" />
 
             {status && (
-                <div className="mb-4 rounded-lg bg-green-50 p-4 text-sm font-medium text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                <div className="mb-4 rounded-lg bg-green-50 p-4 text-sm font-medium text-green-600 dark:bg-green-900/30 dark:text-green-400 text-center">
                     {status}
                 </div>
             )}
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
+
+                    {/* EMAIL */}
                     <div className="grid gap-2">
                         <Label htmlFor="email" className="flex items-center gap-2">
                             <Mail className="h-4 w-4 opacity-70" /> Correo Electrónico
@@ -69,20 +71,12 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <InputError message={errors.email} />
                     </div>
 
+                    {/* PASSWORD */}
                     <div className="grid gap-2">
                         <div className="flex items-center justify-between">
                             <Label htmlFor="password" className="flex items-center gap-2">
                                 <Lock className="h-4 w-4 opacity-70" /> Contraseña
                             </Label>
-                            {canResetPassword && (
-                                <Link 
-                                    href={route('password.request')} 
-                                    className="text-sm font-medium text-primary hover:underline underline-offset-4" 
-                                    tabIndex={5}
-                                >
-                                    ¿Olvidaste tu contraseña?
-                                </Link>
-                            )}
                         </div>
                         <Input
                             id="password"
@@ -98,6 +92,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <InputError message={errors.password} />
                     </div>
 
+                    {/* REMEMBER */}
                     <div className="flex items-center space-x-2">
                         <Checkbox 
                             id="remember" 
@@ -106,22 +101,34 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             checked={data.remember}
                             onCheckedChange={(checked) => setData('remember', checked as boolean)}
                         />
-                        <Label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
+                        <Label htmlFor="remember" className="text-sm font-medium cursor-pointer">
                             Mantener sesión iniciada
                         </Label>
                     </div>
 
-                    <Button type="submit" className="mt-2 w-full h-11 text-base shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]" tabIndex={4} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin mr-2" />}
+                    {/* BUTTON CON GRADIENTE 🔥 */}
+                    <Button
+                        type="submit"
+                        tabIndex={4}
+                        disabled={processing}
+                        className="mt-2 w-full h-11 text-base text-white font-semibold 
+                                   bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 
+                                   hover:from-blue-700 hover:to-cyan-500
+                                   shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                        {processing && (
+                            <LoaderCircle className="h-4 w-4 animate-spin mr-2" />
+                        )}
                         Ingresar al sistema
                     </Button>
                 </div>
 
+                {/* REGISTER */}
                 <div className="text-muted-foreground text-center text-sm">
                     ¿No tienes una cuenta aún?{' '}
                     <Link 
                         href={route('register')} 
-                        className="font-semibold text-primary underline-offset-4 hover:underline" 
+                        className="font-semibold text-primary underline-offset-4 hover:underline"
                         tabIndex={5}
                     >
                         Regístrate gratis
